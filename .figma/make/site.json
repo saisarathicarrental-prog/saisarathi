@@ -1,0 +1,10 @@
+{
+  "description": "Discover premium travel packages and luxury car rentals tailored for discerning travelers, ensuring memorable and reliable experiences.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
