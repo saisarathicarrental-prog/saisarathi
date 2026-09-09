@@ -127,11 +127,8 @@ const DESTINATIONS: Destination[] = [
       { title: "Ellora Caves", duration: "Full Day", price: "₹1,200", img: "https://images.unsplash.com/photo-1631774933370-d596a344e851?w=600&h=400&fit=crop&auto=format" },
       { title: "Ghrishneshwar Temple", duration: "Half Day", price: "₹800", img: "https://images.unsplash.com/photo-1759134334340-9398d9814bcb?w=600&h=400&fit=crop&auto=format" },
       { title: "Bhadra Maruti", duration: "Half Day", price: "₹600", img: "https://images.unsplash.com/photo-1721532865608-c041a31add0e?w=600&h=400&fit=crop&auto=format" },
-      { title: "Saptashrungi Gad", duration: "Full Day", price: "₹1,500", img: "https://images.unsplash.com/photo-1597637245724-beb1e10cb79a?w=600&h=400&fit=crop&auto=format" },
       { title: "Daulatabad Fort", duration: "Half Day", price: "₹900", img: "https://images.unsplash.com/photo-1629283151116-65b2369c8eff?w=600&h=400&fit=crop&auto=format" },
       { title: "Bibi Ka Maqbara", duration: "Half Day", price: "₹700", img: "https://images.unsplash.com/photo-1629353025246-51ebf45025b9?w=600&h=400&fit=crop&auto=format" },
-      { title: "Goga Baba Hill", duration: "Half Day", price: "₹500", img: "https://images.unsplash.com/photo-1616388969587-8196f32388b4?w=600&h=400&fit=crop&auto=format" },
-      { title: "Himayat Bagh", duration: "Half Day", price: "₹400", img: "https://images.unsplash.com/photo-1665402294437-c12f2e4259ea?w=600&h=400&fit=crop&auto=format" },
       { title: "Ajanta Caves", duration: "Full Day", price: "₹1,400", img: "https://images.unsplash.com/photo-1631774933370-d596a344e851?w=600&h=400&fit=crop&auto=format" },
     ],
   },
@@ -197,6 +194,7 @@ const DESTINATIONS: Destination[] = [
       { title: "Ram Kund & Panchavati", duration: "Half Day", price: "₹500", img: "https://images.unsplash.com/photo-1571536802807-30451e3955d8?w=600&h=400&fit=crop&auto=format" },
       { title: "Kalaram Temple", duration: "Half Day", price: "₹400", img: "https://images.unsplash.com/photo-1766843685626-eb30e8bc6560?w=600&h=400&fit=crop&auto=format" },
       { title: "Brahmagiri Hills", duration: "Full Day", price: "₹1,100", img: "https://images.unsplash.com/photo-1597637245724-beb1e10cb79a?w=600&h=400&fit=crop&auto=format" },
+      { title: "Saptashrungi Gad", duration: "Full Day", price: "₹1,500", img: "https://images.unsplash.com/photo-1597637245724-beb1e10cb79a?w=600&h=400&fit=crop&auto=format" },
       { title: "Harihar Fort", duration: "Full Day", price: "₹1,200", img: "https://images.unsplash.com/photo-1703134942857-ef0b6f009a42?w=600&h=400&fit=crop&auto=format" },
       { title: "Kalsubai Peak", duration: "Full Day", price: "₹1,300", img: "https://images.unsplash.com/photo-1465919292275-c60ba49da6ae?w=600&h=400&fit=crop&auto=format" },
     ],
@@ -366,7 +364,7 @@ function SubPackagesScroller({ packages }: { packages: SubPackage[] }) {
           <div
             key={i}
             className="pkg-card group bg-white rounded-2xl overflow-hidden border border-[#E8E3D8] shrink-0 flex flex-col"
-            style={{ width: "min(240px, 70vw)", opacity: 0, boxShadow: "0 2px 16px rgba(11,28,44,0.08)" }}
+            style={{ width: 240, opacity: 0, boxShadow: "0 2px 16px rgba(11,28,44,0.08)" }}
             onMouseEnter={onCardEnter}
             onMouseLeave={onCardLeave}
           >
@@ -470,7 +468,7 @@ function CarDetailSheet({ car, onClose }: { car: Car | null; onClose: () => void
 
         <div className="flex-1 overflow-y-auto hide-scrollbar">
           {/* Main image with slide transition */}
-          <div className="relative bg-[#0B1C2C] overflow-hidden" style={{ height: "min(300px, 40vh)" }}>
+          <div className="relative bg-[#0B1C2C] overflow-hidden" style={{ height: 300 }}>
             {car.gallery.map((src, i) => (
               <img
                 key={i}
@@ -685,20 +683,20 @@ function ServicesSection() {
       <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#C9A227]/6 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-[#0B1C2C]/5 blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-10 md:mb-16">
           <div>
             <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-3">What We Offer</p>
             <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight">
               Our <span className="italic font-normal">Services</span>
             </h2>
           </div>
-          <p className="text-[#5A5A5A] text-base leading-relaxed max-w-sm">
+          <p className="text-[#5A5A5A] text-sm sm:text-base leading-relaxed max-w-sm">
             From the runway to the open road — every service crafted to eliminate friction and elevate the journey.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
           {SERVICES.map((svc, i) => {
             const isVisible = visibleCards[i];
             return (
@@ -715,7 +713,7 @@ function ServicesSection() {
                 }}
               >
                 {/* Image */}
-                <div className="relative overflow-hidden shrink-0" style={{ height: "clamp(200px, 35vw, 260px)" }}>
+                <div className="relative overflow-hidden shrink-0" style={{ height: "200px" }}>
                   <img
                     src={svc.img}
                     alt={svc.label}
@@ -731,16 +729,16 @@ function ServicesSection() {
                 </div>
 
                 {/* Content */}
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="w-7 h-0.5 mb-5 rounded-full" style={{ backgroundColor: "#C9A227" }} />
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.75)" }}>
+                <div className="p-4 sm:p-6 flex flex-col flex-1">
+                  <div className="w-7 h-0.5 mb-3 sm:mb-5 rounded-full" style={{ backgroundColor: "#C9A227" }} />
+                  <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.75)" }}>
                       {svc.icon}
                     </div>
-                    <h3 className="font-serif text-lg text-white font-semibold leading-snug pt-1">{svc.label}</h3>
+                    <h3 className="font-serif text-sm sm:text-lg text-white font-semibold leading-snug pt-0.5 sm:pt-1">{svc.label}</h3>
                   </div>
-                  <p className="text-white/50 text-xs mb-3 tracking-wide italic">{svc.tagline}</p>
-                  <p className="text-white/70 text-sm leading-relaxed">{svc.desc}</p>
+                  <p className="text-white/50 text-[10px] sm:text-xs mb-2 sm:mb-3 tracking-wide italic">{svc.tagline}</p>
+                  <p className="text-white/70 text-xs sm:text-sm leading-relaxed">{svc.desc}</p>
                 </div>
               </div>
             );
@@ -922,7 +920,7 @@ function ContactForm() {
       </div>
       <button
         type="submit"
-        className="bg-[#0B1C2C] text-white px-6 sm:px-10 py-3.5 sm:py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#1A3A4A] transition-colors mt-2 self-start flex items-center gap-2"
+        className="bg-[#0B1C2C] text-white px-10 py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#1A3A4A] transition-colors mt-2 self-start flex items-center gap-2"
       >
         <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
@@ -959,13 +957,13 @@ export default function App() {
           scrolled ? "bg-[#0B1C2C]/95 backdrop-blur-md shadow-lg" : "bg-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 h-18 flex items-center justify-between py-3 md:py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 h-16 md:h-18 flex items-center justify-between py-3 md:py-4">
           {/* Logo */}
           <div className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
             <img
               src="/images/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
               alt="Saisarathi Car Rentals"
-              className="h-10 sm:h-12 w-auto brightness-0 invert"
+              className="h-10 md:h-12 w-auto brightness-0 invert"
             />
           </div>
 
@@ -1008,12 +1006,13 @@ export default function App() {
         </div>
 
         {/* Mobile menu */}
-        <div className={`md:hidden bg-[#0B1C2C]/98 border-t border-white/10 px-6 flex flex-col gap-4 mobile-menu-enter ${menuOpen ? "mobile-menu-open py-4" : "py-0"}`}>
+        {menuOpen && (
+          <div className="md:hidden bg-[#0B1C2C]/98 backdrop-blur-md border-t border-white/10 px-5 py-5 flex flex-col gap-4">
             {NAV_LINKS.map((link) => (
               <button
                 key={link}
                 onClick={() => scrollTo(link.toLowerCase().replace(" ", "-"))}
-                className="text-white/80 hover:text-[#C9A227] text-base font-medium text-left transition-colors"
+                className="text-white/80 hover:text-[#C9A227] text-base font-medium text-left transition-colors py-1"
               >
                 {link}
               </button>
@@ -1022,45 +1021,46 @@ export default function App() {
               href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-[#C9A227] text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-[#DDB84A] transition-colors w-fit"
+              className="bg-[#C9A227] text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-[#DDB84A] transition-colors w-full text-center mt-2"
             >
               Book Now
             </a>
-        </div>
+          </div>
+        )}
       </header>
 
       {/* ── HERO ── */}
-      <section className="relative h-screen min-h-[500px] sm:min-h-[580px] md:min-h-[640px] flex items-end bg-[#0B1C2C]">
+      <section className="relative h-screen min-h-[600px] md:min-h-[640px] flex items-end bg-[#0B1C2C]">
         <img
-          src="/images/hero01.jpeg"
-          alt="Sai Sarathi Travels fleet parked at headquarters"
+          src="/images/hero01.png"
+          alt="Sai Sarathi Travels fleet at Shirdi International Airport"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C] via-[#0B1C2C]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C] via-[#0B1C2C]/50 to-[#0B1C2C]/10 md:via-[#0B1C2C]/40 md:to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B1C2C]/60 via-transparent to-transparent" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 md:px-10 pb-16 sm:pb-24 md:pb-32 w-full">
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 md:px-10 pb-8 sm:pb-16 md:pb-32 w-full">
           <div className="max-w-2xl">
-            <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-5">
+            <p className="text-[#C9A227] text-[10px] sm:text-xs font-medium tracking-[0.25em] sm:tracking-[0.3em] uppercase mb-3 sm:mb-5">
               Premium Travel & Car Rental
             </p>
-            <h1 className="font-serif text-[clamp(2rem,8vw,3rem)] sm:text-5xl md:text-7xl text-white font-semibold leading-[1.08] mb-4 sm:mb-6">
+            <h1 className="font-serif text-[2.5rem] sm:text-5xl md:text-7xl text-white font-semibold leading-[1.08] mb-4 sm:mb-6">
               Travel Differently<br />
-              <span className="italic font-normal text-[#C9A227]">with Saisaryhi</span>
+              <span className="italic font-normal text-[#C9A227]">with Saisarathi</span>
             </h1>
-            <p className="text-white/70 text-base sm:text-lg md:text-xl leading-relaxed mb-6 sm:mb-10 max-w-xl">
+            <p className="text-white/70 text-base sm:text-lg md:text-xl leading-relaxed mb-8 sm:mb-10 max-w-xl">
               Curated journeys and premium vehicles for discerning travelers who understand that how you get there is as important as where you're going.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 onClick={() => scrollTo("packages")}
-                className="bg-[#C9A227] text-white px-6 sm:px-10 py-3.5 sm:py-4 rounded-full font-medium tracking-wide hover:bg-[#DDB84A] transition-colors text-sm"
+                className="bg-[#C9A227] text-white w-full sm:w-auto px-10 py-4 rounded-full font-medium tracking-wide hover:bg-[#DDB84A] transition-colors text-sm"
               >
                 Explore Packages
               </button>
               <button
                 onClick={() => scrollTo("our-cars")}
-                className="border border-white/50 text-white px-6 sm:px-10 py-3.5 sm:py-4 rounded-full font-medium tracking-wide hover:border-white hover:bg-white/10 transition-colors text-sm backdrop-blur-sm"
+                className="border border-white/50 text-white w-full sm:w-auto px-10 py-4 rounded-full font-medium tracking-wide hover:border-white hover:bg-white/10 transition-colors text-sm backdrop-blur-sm"
               >
                 Rent a Car
               </button>
@@ -1076,8 +1076,8 @@ export default function App() {
       </section>
 
       {/* ── STATS STRIP ── */}
-      <div className="bg-[#0B1C2C] py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+      <div className="bg-[#0B1C2C] py-6 md:py-8">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {[
             { value: "100+", label: "Destinations" },
             { value: "4K+", label: "Happy Travelers" },
@@ -1086,7 +1086,7 @@ export default function App() {
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="font-serif text-2xl sm:text-3xl text-[#C9A227] font-semibold mb-1">{stat.value}</div>
-              <div className="text-white/50 text-sm tracking-wide">{stat.label}</div>
+              <div className="text-white/50 text-xs sm:text-sm tracking-wide">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -1097,8 +1097,8 @@ export default function App() {
 
       {/* ── OUR CARS ── */}
       <section id="our-cars" className="py-16 sm:py-24 md:py-32 bg-[#F8F6F1]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-10 md:mb-14">
             <div>
               <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-3">Fleet</p>
               <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight">
@@ -1106,12 +1106,12 @@ export default function App() {
                 <span className="italic font-normal">Vehicles</span>
               </h2>
             </div>
-            <p className="text-[#5A5A5A] text-base leading-relaxed max-w-sm">
+            <p className="text-[#5A5A5A] text-sm sm:text-base leading-relaxed max-w-sm">
               Every car in our fleet is hand-selected, meticulously maintained, and delivered to your door.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {CARS.map((car) => (
               <div
                 key={car.id}
@@ -1147,8 +1147,8 @@ export default function App() {
             ))}
           </div>
 
-          <div className="mt-10 text-center">
-            <button className="border border-[#0B1C2C] text-[#0B1C2C] px-10 py-3.5 rounded-full text-sm font-medium hover:bg-[#0B1C2C] hover:text-white transition-colors tracking-wide">
+          <div className="mt-8 sm:mt-10 text-center">
+            <button className="border border-[#0B1C2C] text-[#0B1C2C] w-full sm:w-auto px-10 py-3.5 rounded-full text-sm font-medium hover:bg-[#0B1C2C] hover:text-white transition-colors tracking-wide">
               View Full Fleet
             </button>
           </div>
@@ -1157,24 +1157,24 @@ export default function App() {
 
       {/* ── PACKAGES ── */}
       <section id="packages" className="py-16 sm:py-24 md:py-32 bg-[#F1EDE4]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
-          <div className="text-center mb-16">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10">
+          <div className="text-center mb-10 md:mb-16">
             <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-3">Destinations</p>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold mb-5">
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold mb-4 sm:mb-5">
               Curated Travel <span className="italic font-normal">Packages</span>
             </h2>
-            <p className="text-[#5A5A5A] text-base max-w-lg mx-auto leading-relaxed">
+            <p className="text-[#5A5A5A] text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
               Each destination is selected for those who want more than a trip. Click any card to explore curated experiences.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
             {DESTINATIONS.map((dest) => (
               <div
                 key={dest.id}
                 onClick={() => setActiveDestination(dest)}
                 className="group relative rounded-2xl overflow-hidden cursor-pointer bg-[#0B1C2C]"
-                style={{ aspectRatio: "4/5" }}
+                style={{ aspectRatio: "3/4" }}
               >
                 <img
                   src={dest.img}
@@ -1182,13 +1182,13 @@ export default function App() {
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C]/90 via-[#0B1C2C]/20 to-transparent" />
-                <div className="absolute inset-0 flex flex-col justify-end p-7">
-                  <p className="text-[#C9A227] text-xs font-medium tracking-widest uppercase mb-1">{dest.country}</p>
-                  <h3 className="font-serif text-3xl text-white font-semibold mb-2">{dest.city}</h3>
-                  <p className="text-white/60 text-sm mb-5 leading-relaxed">{dest.tagline}</p>
+                <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-7">
+                  <p className="text-[#C9A227] text-[10px] sm:text-xs font-medium tracking-widest uppercase mb-1">{dest.country}</p>
+                  <h3 className="font-serif text-xl sm:text-3xl text-white font-semibold mb-1 sm:mb-2">{dest.city}</h3>
+                  <p className="text-white/60 text-xs sm:text-sm mb-3 sm:mb-5 leading-relaxed line-clamp-2">{dest.tagline}</p>
                   <div className="flex items-center gap-2 text-[#C9A227] group-hover:gap-3 transition-all duration-200">
-                    <span className="text-sm font-medium tracking-wide">Explore</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <span className="text-xs sm:text-sm font-medium tracking-wide">Explore</span>
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                   </div>
@@ -1201,47 +1201,47 @@ export default function App() {
 
       {/* ── ABOUT ── */}
       <section id="about" className="py-16 sm:py-24 md:py-32 bg-[#F8F6F1]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 items-center">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             {/* Text */}
             <div>
-              <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-5">Our Story</p>
+              <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-4 sm:mb-5">Our Story</p>
               <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight mb-5 sm:mb-7">
                 Travel is a craft.<br />
                 <span className="italic font-normal">We've mastered it.</span>
               </h2>
-              <p className="text-[#5A5A5A] text-base leading-relaxed mb-6">
+              <p className="text-[#5A5A5A] text-sm sm:text-base leading-relaxed mb-5 sm:mb-6">
                 Saisaryhi was founded on a simple conviction: that extraordinary travel is about intention, not just destination. After a decade crafting journeys for discerning travelers across 180 countries, we've learned that the details no one else bothers with — the route, the car, the table by the window — are precisely what make a trip unforgettable.
               </p>
-              <p className="text-[#5A5A5A] text-base leading-relaxed mb-10">
+              <p className="text-[#5A5A5A] text-sm sm:text-base leading-relaxed mb-8 sm:mb-10">
                 We combine a curated fleet of premium vehicles with hand-picked itineraries, local relationships, and a team of specialists who treat every journey as if it were their own.
               </p>
 
               {/* Trust badges */}
-              <div className="grid grid-cols-2 gap-6 border-t border-[#E8E3D8] pt-8">
+              <div className="grid grid-cols-2 gap-4 sm:gap-6 border-t border-[#E8E3D8] pt-6 sm:pt-8">
                 {/* Fully Insured */}
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#0B1C2C] flex items-center justify-center shrink-0">
-                    <svg className="w-6 h-6 text-[#C9A227]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#0B1C2C] flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#C9A227]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                     </svg>
                   </div>
                   <div>
-                    <div className="text-[#0B1C2C] text-sm font-semibold mb-0.5">Fully Insured</div>
-                    <div className="text-[#5A5A5A] text-xs leading-relaxed">All vehicles & trips covered</div>
+                    <div className="text-[#0B1C2C] text-xs sm:text-sm font-semibold mb-0.5">Fully Insured</div>
+                    <div className="text-[#5A5A5A] text-[11px] sm:text-xs leading-relaxed">All vehicles & trips covered</div>
                   </div>
                 </div>
 
                 {/* 24/7 Support */}
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#0B1C2C] flex items-center justify-center shrink-0">
-                    <svg className="w-6 h-6 text-[#C9A227]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#0B1C2C] flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#C9A227]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div>
-                    <div className="text-[#0B1C2C] text-sm font-semibold mb-0.5">24/7 Support</div>
-                    <div className="text-[#5A5A5A] text-xs leading-relaxed">Concierge on call, always</div>
+                    <div className="text-[#0B1C2C] text-xs sm:text-sm font-semibold mb-0.5">24/7 Support</div>
+                    <div className="text-[#5A5A5A] text-[11px] sm:text-xs leading-relaxed">Concierge on call, always</div>
                   </div>
                 </div>
               </div>
@@ -1271,7 +1271,7 @@ export default function App() {
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#C9A227]/30 to-transparent" />
 
         {/* Header */}
-        <div className="text-center mb-16 px-6">
+        <div className="text-center mb-10 md:mb-16 px-5 sm:px-6">
           <p className="text-xs font-medium tracking-[0.3em] uppercase mb-3" style={{ color: "#C9A227" }}>Reviews</p>
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-semibold" style={{ color: "#F5F5F5" }}>
             What our travelers{" "}
@@ -1281,40 +1281,40 @@ export default function App() {
 
         {/* Marquee — fade edges */}
         <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 z-10 pointer-events-none"
+          <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 md:w-40 z-10 pointer-events-none"
             style={{ background: "linear-gradient(to right, #0F1419, transparent)" }} />
-          <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 z-10 pointer-events-none"
+          <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 md:w-40 z-10 pointer-events-none"
             style={{ background: "linear-gradient(to left, #0F1419, transparent)" }} />
 
           {/* Track — duplicated for seamless loop */}
           <div className="overflow-hidden">
-            <div className="marquee-track flex gap-5 w-max">
+            <div className="marquee-track flex gap-4 sm:gap-5 w-max">
               {[...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
                 <div
                   key={i}
                   className="relative flex-shrink-0 flex flex-col rounded-2xl p-5 sm:p-7"
                   style={{
-                    width: "min(340px, 85vw)",
+                    width: "min(300px, 80vw)",
                     backgroundColor: "#1A2332",
                     border: "1px solid rgba(255,255,255,0.07)",
                     boxShadow: "0 8px 40px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.04) inset",
                   }}
                 >
-                  <div className="absolute top-0 left-7 w-10 h-0.5 rounded-full" style={{ backgroundColor: "#C9A227" }} />
+                  <div className="absolute top-0 left-5 sm:left-7 w-10 h-0.5 rounded-full" style={{ backgroundColor: "#C9A227" }} />
                   <StarRating count={t.rating} />
-                  <p className="text-sm leading-relaxed italic flex-1 mb-7" style={{ color: "#F5F5F5" }}>
+                  <p className="text-xs sm:text-sm leading-relaxed italic flex-1 mb-5 sm:mb-7" style={{ color: "#F5F5F5" }}>
                     &ldquo;{t.quote}&rdquo;
                   </p>
-                  <div className="flex items-center gap-3 pt-5" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div className="flex items-center gap-3 pt-4 sm:pt-5" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
                     <img
                       src={t.img}
                       alt={t.name}
-                      className="w-10 h-10 rounded-full object-cover shrink-0"
+                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shrink-0"
                       style={{ border: "2px solid rgba(201,162,39,0.45)" }}
                     />
                     <div>
-                      <div className="font-medium text-sm" style={{ color: "#F5F5F5" }}>{t.name}</div>
-                      <div className="text-xs" style={{ color: "#A0AEC0" }}>{t.location}</div>
+                      <div className="font-medium text-xs sm:text-sm" style={{ color: "#F5F5F5" }}>{t.name}</div>
+                      <div className="text-[11px] sm:text-xs" style={{ color: "#A0AEC0" }}>{t.location}</div>
                     </div>
                   </div>
                 </div>
@@ -1328,15 +1328,15 @@ export default function App() {
 
       {/* ── CONTACT ── */}
       <section id="contact" className="py-16 sm:py-24 md:py-32 bg-[#F1EDE4]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
             {/* Form */}
             <div>
-              <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-4">Get in Touch</p>
+              <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-3 sm:mb-4">Get in Touch</p>
               <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold mb-3">
                 Plan your <span className="italic font-normal">journey</span>
               </h2>
-              <p className="text-[#5A5A5A] text-base mb-10 leading-relaxed">
+              <p className="text-[#5A5A5A] text-sm sm:text-base mb-8 sm:mb-10 leading-relaxed">
                 Our specialists are ready to craft an itinerary around your vision. No template packages — every trip is designed from scratch.
               </p>
 
@@ -1344,31 +1344,31 @@ export default function App() {
             </div>
 
             {/* Info */}
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-5 sm:gap-8">
               {/* Map placeholder */}
-              <div className="rounded-2xl overflow-hidden bg-[#0B1C2C] flex-1 min-h-64 relative">
+              <div className="rounded-2xl overflow-hidden bg-[#0B1C2C] flex-1 min-h-48 sm:min-h-64 relative">
                 <img
                   src="/images/Immersive_4K_Documentary__Exploring_the_Divine_Aura_of_Shri_Shirdi_Sai_Baba_Temple___Telugu_.jpeg"
                   alt="Shirdi Sai Baba"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C]/75 to-transparent" />
-                <div className="absolute bottom-6 left-6">
-                  <p className="text-white font-serif text-lg font-semibold">Shirdi Sai Baba</p>
-                  <p className="text-white/60 text-sm">Near Saibaba Temple, Shirdi</p>
+                <div className="absolute bottom-5 left-5 sm:bottom-6 sm:left-6">
+                  <p className="text-white font-serif text-base sm:text-lg font-semibold">Shirdi Sai Baba</p>
+                  <p className="text-white/60 text-xs sm:text-sm">Near Saibaba Temple, Shirdi</p>
                 </div>
               </div>
 
               {/* Contact details */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                 {/* Address */}
-                <div className="bg-white rounded-2xl p-5 border border-[#E8E3D8]">
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E8E3D8]">
                   <p className="text-[#C9A227] text-xs font-medium tracking-widest uppercase mb-2">Address</p>
                   <p className="text-[#1A1A1A] text-sm leading-relaxed">Near Saibaba Temple,{"\n"}Shirdi, Maharashtra</p>
                 </div>
 
                 {/* Phone */}
-                <div className="bg-white rounded-2xl p-5 border border-[#E8E3D8]">
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E8E3D8]">
                   <p className="text-[#C9A227] text-xs font-medium tracking-widest uppercase mb-2">Contact Us</p>
                   <div className="flex flex-col gap-1.5">
                     <div>
@@ -1383,7 +1383,7 @@ export default function App() {
                 </div>
 
                 {/* Email */}
-                <div className="bg-white rounded-2xl p-5 border border-[#E8E3D8] sm:col-span-2">
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E8E3D8] sm:col-span-2">
                   <p className="text-[#C9A227] text-xs font-medium tracking-widest uppercase mb-2">Email</p>
                   <a href="mailto:saisarathi@gmail.com" className="text-[#0B1C2C] text-sm hover:text-[#C9A227] transition-colors">saisarathi@gmail.com</a>
                 </div>
@@ -1402,16 +1402,16 @@ export default function App() {
 
       {/* ── FOOTER ── */}
       <footer className="bg-[#0B1C2C] py-8 sm:py-12 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
           <img
             src="/images/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
             alt="Saisarathi Car Rentals"
-            className="h-10 w-auto brightness-0 invert"
+            className="h-8 sm:h-10 w-auto brightness-0 invert"
           />
-          <p className="text-white/30 text-sm text-center">
+          <p className="text-white/30 text-xs sm:text-sm text-center">
             © {new Date().getFullYear()} Saisaryhi. All rights reserved. Travel with intention.
           </p>
-          <div className="flex gap-6">
+          <div className="flex gap-5 sm:gap-6">
             {["Privacy", "Terms", "Cookies"].map((link) => (
               <button key={link} className="text-white/40 text-xs hover:text-white/70 transition-colors">
                 {link}
@@ -1426,11 +1426,11 @@ export default function App() {
         href={WHATSAPP_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-transform duration-300 hover:scale-110 active:scale-95"
+        className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl transition-transform duration-300 hover:scale-110 active:scale-95"
         style={{ backgroundColor: "#25D366" }}
         aria-label="Chat on WhatsApp"
       >
-        <svg viewBox="0 0 24 24" className="w-7 h-7 fill-white">
+        <svg viewBox="0 0 24 24" className="w-6 h-6 sm:w-7 sm:h-7 fill-white">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
           <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.306A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.95 7.95 0 01-4.074-1.12l-.292-.174-3.035.795.813-2.965-.19-.305A7.96 7.96 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.582 8-8 8z" />
         </svg>
