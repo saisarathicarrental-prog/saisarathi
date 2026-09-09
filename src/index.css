@@ -27,6 +27,7 @@ body {
   font-family: 'Inter', sans-serif;
   background-color: #F8F6F1;
   color: #1A1A1A;
+  overflow-x: hidden;
 }
 
 .font-serif {
@@ -86,3 +87,43 @@ html {
   pointer-events: none;
   z-index: 1;
 }
+
+/* Mobile menu animation */
+.mobile-menu-enter {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.25s ease;
+}
+.mobile-menu-open {
+  max-height: 400px;
+  opacity: 1;
+}
+
+/* ─── RESPONSIVE: Prevent horizontal overflow ─── */
+#root {
+  overflow-x: hidden;
+}
+
+/* ─── RESPONSIVE: Small laptops (769–1024px) ─── */
+@media (max-width: 1024px) {
+  .marquee-track {
+    animation-duration: 30s;
+  }
+}
+
+/* ─── RESPONSIVE: Tablets (601–768px) ─── */
+@media (max-width: 768px) {
+  .marquee-track {
+    animation-duration: 25s;
+  }
+}
+
+/* ─── RESPONSIVE: Mobile (≤480px) ─── */
+@media (max-width: 480px) {
+  .marquee-track {
+    animation-duration: 20s;
+  }
+}
+

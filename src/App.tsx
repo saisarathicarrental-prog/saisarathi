@@ -366,7 +366,7 @@ function SubPackagesScroller({ packages }: { packages: SubPackage[] }) {
           <div
             key={i}
             className="pkg-card group bg-white rounded-2xl overflow-hidden border border-[#E8E3D8] shrink-0 flex flex-col"
-            style={{ width: 240, opacity: 0, boxShadow: "0 2px 16px rgba(11,28,44,0.08)" }}
+            style={{ width: "min(240px, 70vw)", opacity: 0, boxShadow: "0 2px 16px rgba(11,28,44,0.08)" }}
             onMouseEnter={onCardEnter}
             onMouseLeave={onCardLeave}
           >
@@ -470,7 +470,7 @@ function CarDetailSheet({ car, onClose }: { car: Car | null; onClose: () => void
 
         <div className="flex-1 overflow-y-auto hide-scrollbar">
           {/* Main image with slide transition */}
-          <div className="relative bg-[#0B1C2C] overflow-hidden" style={{ height: 300 }}>
+          <div className="relative bg-[#0B1C2C] overflow-hidden" style={{ height: "min(300px, 40vh)" }}>
             {car.gallery.map((src, i) => (
               <img
                 key={i}
@@ -681,15 +681,15 @@ function ServicesSection() {
   }, []);
 
   return (
-    <section id="services" ref={sectionRef} className="py-24 md:py-32 bg-[#F1EDE4] relative overflow-hidden">
+    <section id="services" ref={sectionRef} className="py-16 sm:py-24 md:py-32 bg-[#F1EDE4] relative overflow-hidden">
       <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#C9A227]/6 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-[#0B1C2C]/5 blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 md:px-10 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
             <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-3">What We Offer</p>
-            <h2 className="font-serif text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight">
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight">
               Our <span className="italic font-normal">Services</span>
             </h2>
           </div>
@@ -715,7 +715,7 @@ function ServicesSection() {
                 }}
               >
                 {/* Image */}
-                <div className="relative overflow-hidden shrink-0" style={{ height: "260px" }}>
+                <div className="relative overflow-hidden shrink-0" style={{ height: "clamp(200px, 35vw, 260px)" }}>
                   <img
                     src={svc.img}
                     alt={svc.label}
@@ -922,7 +922,7 @@ function ContactForm() {
       </div>
       <button
         type="submit"
-        className="bg-[#0B1C2C] text-white px-10 py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#1A3A4A] transition-colors mt-2 self-start flex items-center gap-2"
+        className="bg-[#0B1C2C] text-white px-6 sm:px-10 py-3.5 sm:py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#1A3A4A] transition-colors mt-2 self-start flex items-center gap-2"
       >
         <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
@@ -959,13 +959,13 @@ export default function App() {
           scrolled ? "bg-[#0B1C2C]/95 backdrop-blur-md shadow-lg" : "bg-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 md:px-10 h-18 flex items-center justify-between py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 h-18 flex items-center justify-between py-3 md:py-4">
           {/* Logo */}
           <div className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
             <img
               src="/images/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
               alt="Saisarathi Car Rentals"
-              className="h-12 w-auto brightness-0 invert"
+              className="h-10 sm:h-12 w-auto brightness-0 invert"
             />
           </div>
 
@@ -1008,8 +1008,7 @@ export default function App() {
         </div>
 
         {/* Mobile menu */}
-        {menuOpen && (
-          <div className="md:hidden bg-[#0B1C2C]/98 border-t border-white/10 px-6 py-4 flex flex-col gap-4">
+        <div className={`md:hidden bg-[#0B1C2C]/98 border-t border-white/10 px-6 flex flex-col gap-4 mobile-menu-enter ${menuOpen ? "mobile-menu-open py-4" : "py-0"}`}>
             {NAV_LINKS.map((link) => (
               <button
                 key={link}
@@ -1027,12 +1026,11 @@ export default function App() {
             >
               Book Now
             </a>
-          </div>
-        )}
+        </div>
       </header>
 
       {/* ── HERO ── */}
-      <section className="relative h-screen min-h-[640px] flex items-end bg-[#0B1C2C]">
+      <section className="relative h-screen min-h-[500px] sm:min-h-[580px] md:min-h-[640px] flex items-end bg-[#0B1C2C]">
         <img
           src="/images/hero01.jpeg"
           alt="Sai Sarathi Travels fleet parked at headquarters"
@@ -1041,28 +1039,28 @@ export default function App() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C] via-[#0B1C2C]/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B1C2C]/60 via-transparent to-transparent" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 pb-24 md:pb-32 w-full">
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 md:px-10 pb-16 sm:pb-24 md:pb-32 w-full">
           <div className="max-w-2xl">
             <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-5">
               Premium Travel & Car Rental
             </p>
-            <h1 className="font-serif text-5xl md:text-7xl text-white font-semibold leading-[1.05] mb-6">
+            <h1 className="font-serif text-[clamp(2rem,8vw,3rem)] sm:text-5xl md:text-7xl text-white font-semibold leading-[1.08] mb-4 sm:mb-6">
               Travel Differently<br />
               <span className="italic font-normal text-[#C9A227]">with Saisaryhi</span>
             </h1>
-            <p className="text-white/70 text-lg md:text-xl leading-relaxed mb-10 max-w-xl">
+            <p className="text-white/70 text-base sm:text-lg md:text-xl leading-relaxed mb-6 sm:mb-10 max-w-xl">
               Curated journeys and premium vehicles for discerning travelers who understand that how you get there is as important as where you're going.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => scrollTo("packages")}
-                className="bg-[#C9A227] text-white px-10 py-4 rounded-full font-medium tracking-wide hover:bg-[#DDB84A] transition-colors text-sm"
+                className="bg-[#C9A227] text-white px-6 sm:px-10 py-3.5 sm:py-4 rounded-full font-medium tracking-wide hover:bg-[#DDB84A] transition-colors text-sm"
               >
                 Explore Packages
               </button>
               <button
                 onClick={() => scrollTo("our-cars")}
-                className="border border-white/50 text-white px-10 py-4 rounded-full font-medium tracking-wide hover:border-white hover:bg-white/10 transition-colors text-sm backdrop-blur-sm"
+                className="border border-white/50 text-white px-6 sm:px-10 py-3.5 sm:py-4 rounded-full font-medium tracking-wide hover:border-white hover:bg-white/10 transition-colors text-sm backdrop-blur-sm"
               >
                 Rent a Car
               </button>
@@ -1078,8 +1076,8 @@ export default function App() {
       </section>
 
       {/* ── STATS STRIP ── */}
-      <div className="bg-[#0B1C2C] py-8">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="bg-[#0B1C2C] py-6 sm:py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           {[
             { value: "100+", label: "Destinations" },
             { value: "4K+", label: "Happy Travelers" },
@@ -1087,7 +1085,7 @@ export default function App() {
             { value: "9 yrs", label: "Of Excellence" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
-              <div className="font-serif text-3xl text-[#C9A227] font-semibold mb-1">{stat.value}</div>
+              <div className="font-serif text-2xl sm:text-3xl text-[#C9A227] font-semibold mb-1">{stat.value}</div>
               <div className="text-white/50 text-sm tracking-wide">{stat.label}</div>
             </div>
           ))}
@@ -1098,12 +1096,12 @@ export default function App() {
       <ServicesSection />
 
       {/* ── OUR CARS ── */}
-      <section id="our-cars" className="py-24 md:py-32 bg-[#F8F6F1]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
+      <section id="our-cars" className="py-16 sm:py-24 md:py-32 bg-[#F8F6F1]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
             <div>
               <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-3">Fleet</p>
-              <h2 className="font-serif text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight">
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight">
                 Our Signature<br />
                 <span className="italic font-normal">Vehicles</span>
               </h2>
@@ -1158,11 +1156,11 @@ export default function App() {
       </section>
 
       {/* ── PACKAGES ── */}
-      <section id="packages" className="py-24 md:py-32 bg-[#F1EDE4]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
+      <section id="packages" className="py-16 sm:py-24 md:py-32 bg-[#F1EDE4]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
           <div className="text-center mb-16">
             <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-3">Destinations</p>
-            <h2 className="font-serif text-4xl md:text-5xl text-[#0B1C2C] font-semibold mb-5">
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold mb-5">
               Curated Travel <span className="italic font-normal">Packages</span>
             </h2>
             <p className="text-[#5A5A5A] text-base max-w-lg mx-auto leading-relaxed">
@@ -1202,13 +1200,13 @@ export default function App() {
       </section>
 
       {/* ── ABOUT ── */}
-      <section id="about" className="py-24 md:py-32 bg-[#F8F6F1]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <section id="about" className="py-16 sm:py-24 md:py-32 bg-[#F8F6F1]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 items-center">
             {/* Text */}
             <div>
               <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-5">Our Story</p>
-              <h2 className="font-serif text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight mb-7">
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight mb-5 sm:mb-7">
                 Travel is a craft.<br />
                 <span className="italic font-normal">We've mastered it.</span>
               </h2>
@@ -1269,13 +1267,13 @@ export default function App() {
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section id="reviews" className="py-24 md:py-32 relative overflow-hidden" style={{ backgroundColor: "#0F1419" }}>
+      <section id="reviews" className="py-16 sm:py-24 md:py-32 relative overflow-hidden" style={{ backgroundColor: "#0F1419" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#C9A227]/30 to-transparent" />
 
         {/* Header */}
         <div className="text-center mb-16 px-6">
           <p className="text-xs font-medium tracking-[0.3em] uppercase mb-3" style={{ color: "#C9A227" }}>Reviews</p>
-          <h2 className="font-serif text-4xl md:text-5xl font-semibold" style={{ color: "#F5F5F5" }}>
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-semibold" style={{ color: "#F5F5F5" }}>
             What our travelers{" "}
             <span className="italic font-normal" style={{ color: "#C9A227" }}>say</span>
           </h2>
@@ -1294,9 +1292,9 @@ export default function App() {
               {[...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
                 <div
                   key={i}
-                  className="relative flex-shrink-0 flex flex-col rounded-2xl p-7"
+                  className="relative flex-shrink-0 flex flex-col rounded-2xl p-5 sm:p-7"
                   style={{
-                    width: 340,
+                    width: "min(340px, 85vw)",
                     backgroundColor: "#1A2332",
                     border: "1px solid rgba(255,255,255,0.07)",
                     boxShadow: "0 8px 40px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.04) inset",
@@ -1329,13 +1327,13 @@ export default function App() {
       </section>
 
       {/* ── CONTACT ── */}
-      <section id="contact" className="py-24 md:py-32 bg-[#F1EDE4]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+      <section id="contact" className="py-16 sm:py-24 md:py-32 bg-[#F1EDE4]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16">
             {/* Form */}
             <div>
               <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-4">Get in Touch</p>
-              <h2 className="font-serif text-4xl md:text-5xl text-[#0B1C2C] font-semibold mb-3">
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold mb-3">
                 Plan your <span className="italic font-normal">journey</span>
               </h2>
               <p className="text-[#5A5A5A] text-base mb-10 leading-relaxed">
@@ -1403,8 +1401,8 @@ export default function App() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="bg-[#0B1C2C] py-12 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6">
+      <footer className="bg-[#0B1C2C] py-8 sm:py-12 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
           <img
             src="/images/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
             alt="Saisarathi Car Rentals"
