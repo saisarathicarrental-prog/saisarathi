@@ -1034,7 +1034,7 @@ export default function App() {
         <img
           src="/images/hero01.png"
           alt="Sai Sarathi Travels fleet at Shirdi International Airport"
-          className="absolute inset-0 w-full h-full object-cover object-center"
+          className="absolute inset-0 w-full h-full object-cover object-bottom md:object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C] via-[#0B1C2C]/50 to-[#0B1C2C]/10 md:via-[#0B1C2C]/40 md:to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B1C2C]/60 via-transparent to-transparent" />
