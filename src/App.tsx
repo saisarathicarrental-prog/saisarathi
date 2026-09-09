@@ -23,7 +23,7 @@ const CARS: Car[] = [
     img: "https://images.unsplash.com/photo-1748215210939-ad8b6c8c086d?w=800&h=500&fit=crop&auto=format",
     gallery: [
       "https://images.unsplash.com/photo-1748215210939-ad8b6c8c086d?w=1200&h=700&fit=crop&auto=format",
-      "/src/imports/WhatsApp_Image_.jpeg",
+      "/images/WhatsApp_Image_.jpeg",
       "https://images.unsplash.com/photo-1581862142388-23e1c52ca091?w=1200&h=700&fit=crop&auto=format",
       "https://images.unsplash.com/photo-1611073819030-ac7216dd0022?w=1200&h=700&fit=crop&auto=format",
     ],
@@ -35,10 +35,10 @@ const CARS: Car[] = [
     name: "Suzuki Baleno",
     specs: "5-seater · AC · Automatic",
     tag: "Hatchback",
-    img: "/src/imports/IMG_9426.PNG",
+    img: "/images/IMG_9426.PNG",
     gallery: [
-      "/src/imports/IMG_9426.PNG",
-      "/src/imports/IMG_9428.PNG",
+      "/images/IMG_9426.PNG",
+      "/images/IMG_9428.PNG",
       "https://images.unsplash.com/photo-1564245316659-a21d3a49d0f5?w=1200&h=700&fit=crop&auto=format",
       "https://images.unsplash.com/photo-1646119197795-c0f7ba0e34c0?w=1200&h=700&fit=crop&auto=format",
     ],
@@ -50,11 +50,11 @@ const CARS: Car[] = [
     name: "Maruti Ertiga",
     specs: "7-seater · AC · Automatic",
     tag: "Family MPV",
-    img: "/src/imports/image-2.png",
+    img: "/images/image-2.png",
     gallery: [
-      "/src/imports/image-2.png",
-      "/src/imports/image-3.png",
-      "/src/imports/image-4.png",
+      "/images/image-2.png",
+      "/images/image-3.png",
+      "/images/image-4.png",
     ],
     features: ["7 Seats", "AC", "Boot Space", "USB Charging", "Smooth Ride", "Driver Available"],
     description: "The Maruti Ertiga strikes the perfect balance between space and economy. Ideal for family outings, small group tours, and weekend getaways across Maharashtra.",
@@ -64,12 +64,12 @@ const CARS: Car[] = [
     name: "Force Urbania",
     specs: "17-seater · AC · Automatic",
     tag: "Luxury Van",
-    img: "/src/imports/image-7.png",
+    img: "/images/image-7.png",
     gallery: [
-      "/src/imports/image-5.png",
-      "/src/imports/image-6.png",
-      "/src/imports/image-7.png",
-      "/src/imports/image-8.png",
+      "/images/image-5.png",
+      "/images/image-6.png",
+      "/images/image-7.png",
+      "/images/image-8.png",
     ],
     features: ["17 Seats", "Pushback Seats", "AC", "Large Luggage Bay", "USB Charging", "Professional Driver"],
     description: "The Force Urbania is our premium choice for large groups — corporate outings, pilgrimages, and destination weddings. Pushback luxury seats, powerful AC, and a cavernous luggage bay for long-distance comfort.",
@@ -79,11 +79,11 @@ const CARS: Car[] = [
     name: "Hyundai i10",
     specs: "4-seater · AC · Manual",
     tag: "City Compact",
-    img: "/src/imports/image-10.png",
+    img: "/images/image-10.png",
     gallery: [
-      "/src/imports/image-9.png",
-      "/src/imports/image-10.png",
-      "/src/imports/image-11.png",
+      "/images/image-9.png",
+      "/images/image-10.png",
+      "/images/image-11.png",
     ],
     features: ["4 Seats", "AC", "Fuel Efficient", "Easy Parking", "City Friendly", "USB Charging"],
     description: "The Hyundai i10 is our most agile city car — perfect for solo travelers and couples navigating busy city streets, temple lanes, and narrow hill roads with ease and comfort.",
@@ -871,7 +871,7 @@ export default function App() {
           {/* Logo */}
           <div className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
             <img
-              src="/src/imports/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
+              src="/images/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
               alt="Saisarathi Car Rentals"
               className="h-12 w-auto brightness-0 invert"
             />
@@ -938,7 +938,7 @@ export default function App() {
       {/* ── HERO ── */}
       <section className="relative h-screen min-h-[640px] flex items-end bg-[#0B1C2C]">
         <img
-          src="/src/imports/hero01.jpeg"
+          src="/images/hero01.jpeg"
           alt="Sai Sarathi Travels fleet parked at headquarters"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
@@ -1296,7 +1296,7 @@ export default function App() {
               {/* Map placeholder */}
               <div className="rounded-2xl overflow-hidden bg-[#0B1C2C] flex-1 min-h-64 relative">
                 <img
-                  src="/src/imports/Immersive_4K_Documentary__Exploring_the_Divine_Aura_of_Shri_Shirdi_Sai_Baba_Temple___Telugu_.jpeg"
+                  src="/images/Immersive_4K_Documentary__Exploring_the_Divine_Aura_of_Shri_Shirdi_Sai_Baba_Temple___Telugu_.jpeg"
                   alt="Shirdi Sai Baba"
                   className="w-full h-full object-cover"
                 />
@@ -1352,7 +1352,7 @@ export default function App() {
       <footer className="bg-[#0B1C2C] py-12 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <img
-            src="/src/imports/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
+            src="/images/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
             alt="Saisarathi Car Rentals"
             className="h-10 w-auto brightness-0 invert"
           />
