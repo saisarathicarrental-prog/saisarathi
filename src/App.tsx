@@ -3,6 +3,11 @@ import gsap from "gsap";
 
 const NAV_LINKS = ["Services", "Our Cars", "Packages", "About", "Reviews", "Contact"];
 
+const WHATSAPP_URL = `https://wa.me/919623389211?text=${encodeURIComponent("Hello Sai Sarathi Travels,\n\nI'm interested in your travel packages. Please share the details.")}`;
+
+const getWhatsAppUrl = (message: string) =>
+  `https://wa.me/919623389211?text=${encodeURIComponent(message)}`;
+
 interface Car {
   id: number;
   name: string;
@@ -141,8 +146,8 @@ const DESTINATIONS: Destination[] = [
       "Pune is Maharashtra's cultural and spiritual heartbeat — a city where ancient temples stand beside vibrant cafes and Maratha forts overlook modern expressways. Our Pune sightseeing circuit takes you to the most revered and iconic stops the city has to offer.",
     subPackages: [
       { title: "Bhimashankar Temple", duration: "Full Day", price: "₹1,400", img: "https://images.unsplash.com/photo-1704788564069-d54cab4169aa?w=600&h=400&fit=crop&auto=format" },
-      { title: "Dagdusheth Ganpati", duration: "Half Day", price: "₹700", img: "https://images.unsplash.com/photo-1766843685626-eb30e8bc6560?w=600&h=400&fit=crop&auto=format" },
-      { title: "Sinhagad Fort", duration: "Half Day", price: "₹800", img: "https://images.unsplash.com/photo-1715678710159-ee67d5bdba85?w=600&h=400&fit=crop&auto=format" },
+      { title: "Dagdusheth Ganpati", duration: "Half Day", price: "₹700", img: "/images/dagdusheth-ganpati.jpg" },
+      { title: "Shaniwar Wada", duration: "Half Day", price: "₹800", img: "https://images.unsplash.com/photo-1715678710159-ee67d5bdba85?w=600&h=400&fit=crop&auto=format" },
       { title: "Khadakwasla Dam", duration: "Half Day", price: "₹500", img: "https://images.unsplash.com/photo-1764315576362-b5725e77ce76?w=600&h=400&fit=crop&auto=format" },
       { title: "Panshet Dam", duration: "Half Day", price: "₹600", img: "https://images.unsplash.com/photo-1607025188828-be77a08aa372?w=600&h=400&fit=crop&auto=format" },
       { title: "Mulshi Dam", duration: "Half Day", price: "₹600", img: "https://images.unsplash.com/photo-1597637245724-beb1e10cb79a?w=600&h=400&fit=crop&auto=format" },
@@ -378,7 +383,7 @@ function SubPackagesScroller({ packages }: { packages: SubPackage[] }) {
               <h4 className="font-serif text-sm font-semibold text-[#1A1A1A] mb-auto leading-snug">{pkg.title}</h4>
               <div className="mt-4 pt-3 border-t border-[#F1EDE4]">
                 <a
-                  href="https://wa.me/919623389211"
+                  href={getWhatsAppUrl(`Hello Sai Sarathi Travels,\n\nI'm interested in one of your travel ride of ${pkg.title}.`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
@@ -551,18 +556,22 @@ function CarDetailSheet({ car, onClose }: { car: Car | null; onClose: () => void
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={handleClose}
-                className="flex-1 bg-[#C9A227] text-white py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#DDB84A] transition-colors"
+              <a
+                href={getWhatsAppUrl(`Hello Sai Sarathi Travels,\n\nI would like to book a ${car.name} listed on your website.\n\nKindly share the availability and pricing details.`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-center bg-[#C9A227] text-white py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#DDB84A] transition-colors"
               >
                 Book This Vehicle
-              </button>
-              <button
-                onClick={handleClose}
-                className="flex-1 border border-[#0B1C2C] text-[#0B1C2C] py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#0B1C2C] hover:text-white transition-colors"
+              </a>
+              <a
+                href={getWhatsAppUrl(`Hello Sai Sarathi Travels,\n\nI would like to book a ${car.name} listed on your website.\n\nKindly share the availability and pricing details.`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-center border border-[#0B1C2C] text-[#0B1C2C] py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#0B1C2C] hover:text-white transition-colors"
               >
                 Contact Us
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -828,17 +837,100 @@ function BottomSheet({
             <SubPackagesScroller packages={destination.subPackages} />
 
             <div className="mt-12 flex flex-col sm:flex-row gap-4 pb-4">
-              <button className="bg-[#C9A227] text-white px-10 py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#DDB84A] transition-colors">
+              <a href={getWhatsAppUrl(`Hello Sai Sarathi Travels,\n\nI'm interested in one of your travel packages of ${destination.city}.`)} target="_blank" rel="noopener noreferrer" className="text-center bg-[#C9A227] text-white px-10 py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#DDB84A] transition-colors">
                 Book This Destination
-              </button>
-              <button className="border border-[#0B1C2C] text-[#0B1C2C] px-10 py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#0B1C2C] hover:text-white transition-colors">
+              </a>
+              <a href={getWhatsAppUrl(`Hello Sai Sarathi Travels,\n\nI'm interested in one of your travel packages of ${destination.city}.`)} target="_blank" rel="noopener noreferrer" className="text-center border border-[#0B1C2C] text-[#0B1C2C] px-10 py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#0B1C2C] hover:text-white transition-colors">
                 Talk to a Specialist
-              </button>
+              </a>
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function ContactForm() {
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [service, setService] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const whatsappMessage = [
+      "Hello Sai Sarathi Travels,",
+      "",
+      `Full Name : ${fullName || "N/A"}`,
+      `Phone : ${phone || "N/A"}`,
+      `Preferred Service : ${service || "N/A"}`,
+      `Message : ${message || "N/A"}`,
+    ].join("\n");
+
+    const url = `https://wa.me/919623389211?text=${encodeURIComponent(whatsappMessage)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  return (
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+      <div>
+        <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Full Name</label>
+        <input
+          type="text"
+          placeholder="Your name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] placeholder-[#5A5A5A]/50 focus:outline-none focus:border-[#C9A227] transition-colors"
+        />
+      </div>
+      <div>
+        <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Phone</label>
+        <input
+          type="tel"
+          placeholder="+91 00000 00000"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] placeholder-[#5A5A5A]/50 focus:outline-none focus:border-[#C9A227] transition-colors"
+        />
+      </div>
+      <div>
+        <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Preferred Service</label>
+        <select
+          value={service}
+          onChange={(e) => setService(e.target.value)}
+          className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#C9A227] transition-colors appearance-none"
+        >
+          <option value="">Select a service…</option>
+          <option>Travel Package</option>
+          <option>Car Rental</option>
+          <option>Combined Trip &amp; Car</option>
+          <option>Corporate Travel</option>
+          <option>Honeymoon Package</option>
+        </select>
+      </div>
+      <div>
+        <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Message</label>
+        <textarea
+          rows={4}
+          placeholder="Tell us about your dream trip…"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] placeholder-[#5A5A5A]/50 focus:outline-none focus:border-[#C9A227] transition-colors resize-none"
+        />
+      </div>
+      <button
+        type="submit"
+        className="bg-[#0B1C2C] text-white px-10 py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#1A3A4A] transition-colors mt-2 self-start flex items-center gap-2"
+      >
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+          <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.306A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.95 7.95 0 01-4.074-1.12l-.292-.174-3.035.795.813-2.965-.19-.305A7.96 7.96 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.582 8-8 8z" />
+        </svg>
+        Send Message on WhatsApp
+      </button>
+    </form>
   );
 }
 
@@ -892,12 +984,14 @@ export default function App() {
 
           {/* CTA */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => scrollTo("contact")}
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden md:block bg-[#C9A227] text-white text-sm font-medium px-6 py-2.5 rounded-full hover:bg-[#DDB84A] transition-colors tracking-wide"
             >
               Book Now
-            </button>
+            </a>
             {/* Mobile hamburger */}
             <button
               className="md:hidden text-white p-1"
@@ -925,12 +1019,14 @@ export default function App() {
                 {link}
               </button>
             ))}
-            <button
-              onClick={() => scrollTo("contact")}
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="bg-[#C9A227] text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-[#DDB84A] transition-colors w-fit"
             >
               Book Now
-            </button>
+            </a>
           </div>
         )}
       </header>
@@ -1246,49 +1342,7 @@ export default function App() {
                 Our specialists are ready to craft an itinerary around your vision. No template packages — every trip is designed from scratch.
               </p>
 
-              <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
-                <div>
-                  <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Full Name</label>
-                  <input
-                    type="text"
-                    placeholder="Your name"
-                    className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] placeholder-[#5A5A5A]/50 focus:outline-none focus:border-[#C9A227] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Phone</label>
-                  <input
-                    type="tel"
-                    placeholder="+1 (555) 000-0000"
-                    className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] placeholder-[#5A5A5A]/50 focus:outline-none focus:border-[#C9A227] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Preferred Service</label>
-                  <select className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#C9A227] transition-colors appearance-none">
-                    <option value="">Select a service…</option>
-                    <option>Travel Package</option>
-                    <option>Car Rental</option>
-                    <option>Combined Trip & Car</option>
-                    <option>Corporate Travel</option>
-                    <option>Honeymoon Package</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Message</label>
-                  <textarea
-                    rows={4}
-                    placeholder="Tell us about your dream trip…"
-                    className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] placeholder-[#5A5A5A]/50 focus:outline-none focus:border-[#C9A227] transition-colors resize-none"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="bg-[#0B1C2C] text-white px-10 py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#1A3A4A] transition-colors mt-2 self-start"
-                >
-                  Send Message
-                </button>
-              </form>
+              <ContactForm />
             </div>
 
             {/* Info */}
@@ -1371,7 +1425,7 @@ export default function App() {
 
       {/* ── WHATSAPP FAB ── */}
       <a
-        href="https://wa.me/919623389211"
+        href={WHATSAPP_URL}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-transform duration-300 hover:scale-110 active:scale-95"
