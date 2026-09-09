@@ -1030,37 +1030,66 @@ export default function App() {
       </header>
 
       {/* ── HERO ── */}
-      <section className="relative h-screen min-h-[600px] md:min-h-[640px] flex items-end bg-[#0B1C2C]">
-        <img
-          src="/images/hero01.png"
-          alt="Sai Sarathi Travels fleet at Shirdi International Airport"
-          className="absolute inset-0 w-full h-full object-cover object-bottom md:object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C] via-[#0B1C2C]/50 to-[#0B1C2C]/10 md:via-[#0B1C2C]/40 md:to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0B1C2C]/60 via-transparent to-transparent" />
+      <section className="relative min-h-[100svh] md:h-screen md:min-h-[640px] flex flex-col justify-between md:justify-end bg-[#0B1C2C] overflow-hidden">
+        {/* Desktop Background: Full-bleed immersive */}
+        <div className="hidden md:block absolute inset-0 pointer-events-none">
+          <img
+            src="/images/hero01.png"
+            alt="Sai Sarathi Travels fleet at Shirdi International Airport"
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C] via-[#0B1C2C]/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B1C2C]/70 via-[#0B1C2C]/20 to-transparent" />
+        </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 md:px-10 pb-8 sm:pb-16 md:pb-32 w-full">
+        {/* Mobile Background: Ambient glow + Top Fleet Showcase */}
+        <div className="md:hidden absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Blurred ambient backdrop to fill vertical height with matching tones */}
+          <img
+            src="/images/hero01.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover object-center blur-2xl opacity-25 scale-110"
+          />
+          <div className="absolute inset-0 bg-[#0B1C2C]/75" />
+
+          {/* Sharp, fully responsive fleet photo at top */}
+          <div className="relative w-full aspect-[16/10] overflow-hidden mt-14 sm:mt-16">
+            <img
+              src="/images/hero01.png"
+              alt="Sai Sarathi Travels fleet at Shirdi International Airport"
+              className="w-full h-full object-cover object-center"
+            />
+            {/* Soft vignette top */}
+            <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-[#0B1C2C]/90 to-transparent" />
+            {/* Smooth transition into content below */}
+            <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0B1C2C] via-[#0B1C2C]/80 to-transparent" />
+          </div>
+        </div>
+
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 md:px-10 pt-4 pb-8 sm:pb-14 md:pb-32 w-full mt-auto">
           <div className="max-w-2xl">
-            <p className="text-[#C9A227] text-[10px] sm:text-xs font-medium tracking-[0.25em] sm:tracking-[0.3em] uppercase mb-3 sm:mb-5">
+            <p className="text-[#C9A227] text-[10px] sm:text-xs font-medium tracking-[0.25em] sm:tracking-[0.3em] uppercase mb-2 sm:mb-4">
               Premium Travel & Car Rental
             </p>
-            <h1 className="font-serif text-[2.5rem] sm:text-5xl md:text-7xl text-white font-semibold leading-[1.08] mb-4 sm:mb-6">
+            <h1 className="font-serif text-[2.25rem] sm:text-5xl md:text-7xl text-white font-semibold leading-[1.1] mb-3 sm:mb-5">
               Travel Differently<br />
               <span className="italic font-normal text-[#C9A227]">with Saisarathi</span>
             </h1>
-            <p className="text-white/70 text-base sm:text-lg md:text-xl leading-relaxed mb-8 sm:mb-10 max-w-xl">
+            <p className="text-white/80 text-sm sm:text-base md:text-xl leading-relaxed mb-6 sm:mb-8 max-w-xl">
               Curated journeys and premium vehicles for discerning travelers who understand that how you get there is as important as where you're going.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 onClick={() => scrollTo("packages")}
-                className="bg-[#C9A227] text-white w-full sm:w-auto px-10 py-4 rounded-full font-medium tracking-wide hover:bg-[#DDB84A] transition-colors text-sm"
+                className="bg-[#C9A227] text-white w-full sm:w-auto px-8 py-3.5 sm:px-10 sm:py-4 rounded-full font-medium tracking-wide hover:bg-[#DDB84A] transition-colors text-sm shadow-lg shadow-[#C9A227]/20 active:scale-[0.98]"
               >
                 Explore Packages
               </button>
               <button
                 onClick={() => scrollTo("our-cars")}
-                className="border border-white/50 text-white w-full sm:w-auto px-10 py-4 rounded-full font-medium tracking-wide hover:border-white hover:bg-white/10 transition-colors text-sm backdrop-blur-sm"
+                className="border border-white/40 text-white w-full sm:w-auto px-8 py-3.5 sm:px-10 sm:py-4 rounded-full font-medium tracking-wide hover:border-white hover:bg-white/10 transition-colors text-sm backdrop-blur-sm active:scale-[0.98]"
               >
                 Rent a Car
               </button>
