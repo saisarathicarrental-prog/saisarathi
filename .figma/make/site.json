@@ -1,7 +1,15 @@
 {
-  "description": "Discover premium travel packages and luxury car rentals tailored for discerning travelers, ensuring memorable and reliable experiences.",
+  "title": "Sai Sarathi Travels | Car Rental & Trip Planner in Shirdi",
+  "description": "Sai Sarathi Travels offers reliable car rental, taxi cab services, and customized tour packages in Shirdi. Airport transfers, local sightseeing, Nashik, Pune & Mumbai cabs.",
+  "language": "en",
   "robots": {
-    "index": false
+    "index": true
+  },
+  "icons": {
+    "icon": "/images/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
+  },
+  "openGraph": {
+    "image": "https://www.saisarathi.in/images/hero01.png"
   },
   "accessibility": {
     "addBypassLinks": false,

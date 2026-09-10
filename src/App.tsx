@@ -371,7 +371,9 @@ function SubPackagesScroller({ packages }: { packages: SubPackage[] }) {
             <div className="h-44 overflow-hidden bg-[#0B1C2C] shrink-0">
               <img
                 src={pkg.img}
-                alt={pkg.title}
+                alt={`${pkg.title} Sightseeing Tour from Shirdi - Sai Sarathi Travels`}
+                loading="lazy"
+                decoding="async"
                 className="pkg-img w-full h-full object-cover"
                 draggable={false}
               />
@@ -473,7 +475,8 @@ function CarDetailSheet({ car, onClose }: { car: Car | null; onClose: () => void
               <img
                 key={i}
                 src={src}
-                alt={`${car.name} view ${i + 1}`}
+                alt={`${car.name} Car Rental in Shirdi - View ${i + 1}`}
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{
                   opacity: i === activeImg ? 1 : 0,
@@ -522,7 +525,7 @@ function CarDetailSheet({ car, onClose }: { car: Car | null; onClose: () => void
                   transition: "outline-color 0.2s ease",
                 }}
               >
-                <img src={src} alt="" className="w-full h-full object-cover" />
+                <img src={src} alt={`${car.name} photo thumbnail ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </button>
             ))}
           </div>
@@ -716,7 +719,9 @@ function ServicesSection() {
                 <div className="relative overflow-hidden shrink-0" style={{ height: "200px" }}>
                   <img
                     src={svc.img}
-                    alt={svc.label}
+                    alt={`${svc.label} in Shirdi - Sai Sarathi Travels`}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                   {svc.highlight && (
@@ -800,7 +805,8 @@ function BottomSheet({
         <div className="relative h-72 md:h-96 shrink-0 bg-[#0B1C2C] overflow-hidden">
           <img
             src={destination.heroImg}
-            alt={destination.city}
+            alt={`${destination.city} Sightseeing Tour Package - Sai Sarathi Travels`}
+            decoding="async"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C]/80 via-[#0B1C2C]/20 to-transparent" />
@@ -959,25 +965,40 @@ export default function App() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 h-16 md:h-18 flex items-center justify-between py-3 md:py-4">
           {/* Logo */}
-          <div className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+          <a
+            href="#"
+            aria-label="Sai Sarathi Travels - Home"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="cursor-pointer block"
+          >
             <img
               src="/images/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
-              alt="Saisarathi Car Rentals"
+              alt="Sai Sarathi Travels - Car Rental & Tour Service Shirdi Logo"
               className="h-10 md:h-12 w-auto brightness-0 invert"
             />
-          </div>
+          </a>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((link) => (
-              <button
-                key={link}
-                onClick={() => scrollTo(link.toLowerCase().replace(" ", "-"))}
-                className="text-white/80 hover:text-[#C9A227] text-sm font-medium tracking-wide transition-colors"
-              >
-                {link}
-              </button>
-            ))}
+          <nav className="hidden md:flex items-center gap-8" aria-label="Main Navigation">
+            {NAV_LINKS.map((link) => {
+              const sectionId = link.toLowerCase().replace(" ", "-");
+              return (
+                <a
+                  key={link}
+                  href={`#${sectionId}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollTo(sectionId);
+                  }}
+                  className="text-white/80 hover:text-[#C9A227] text-sm font-medium tracking-wide transition-colors"
+                >
+                  {link}
+                </a>
+              );
+            })}
           </nav>
 
           {/* CTA */}
@@ -1008,15 +1029,22 @@ export default function App() {
         {/* Mobile menu */}
         {menuOpen && (
           <div className="md:hidden bg-[#0B1C2C]/98 backdrop-blur-md border-t border-white/10 px-5 py-5 flex flex-col gap-4">
-            {NAV_LINKS.map((link) => (
-              <button
-                key={link}
-                onClick={() => scrollTo(link.toLowerCase().replace(" ", "-"))}
-                className="text-white/80 hover:text-[#C9A227] text-base font-medium text-left transition-colors py-1"
-              >
-                {link}
-              </button>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const sectionId = link.toLowerCase().replace(" ", "-");
+              return (
+                <a
+                  key={link}
+                  href={`#${sectionId}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollTo(sectionId);
+                  }}
+                  className="text-white/80 hover:text-[#C9A227] text-base font-medium text-left transition-colors py-1"
+                >
+                  {link}
+                </a>
+              );
+            })}
             <a
               href={WHATSAPP_URL}
               target="_blank"
@@ -1029,6 +1057,7 @@ export default function App() {
         )}
       </header>
 
+      <main>
       {/* ── HERO ── */}
       <section className="relative min-h-[100svh] md:h-screen md:min-h-[640px] flex flex-col justify-between md:justify-end bg-[#0B1C2C] overflow-hidden">
         {/* Desktop Background: Full-bleed immersive */}
@@ -1036,6 +1065,9 @@ export default function App() {
           <img
             src="/images/hero01.png"
             alt="Sai Sarathi Travels fleet at Shirdi International Airport"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C] via-[#0B1C2C]/40 to-transparent" />
@@ -1058,6 +1090,9 @@ export default function App() {
             <img
               src="/images/hero01.png"
               alt="Sai Sarathi Travels fleet at Shirdi International Airport"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
               className="w-full h-full object-cover object-center"
             />
             {/* Soft vignette top */}
@@ -1156,7 +1191,9 @@ export default function App() {
                 <div className="h-44 overflow-hidden bg-[#1A3A4A] mx-4 mt-3 rounded-xl">
                   <img
                     src={car.img}
-                    alt={car.name}
+                    alt={`${car.name} - Car Rental in Shirdi`}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
@@ -1207,7 +1244,9 @@ export default function App() {
               >
                 <img
                   src={dest.img}
-                  alt={dest.city}
+                  alt={`${dest.city} Sightseeing Tour Package from Shirdi`}
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C]/90 via-[#0B1C2C]/20 to-transparent" />
@@ -1240,7 +1279,7 @@ export default function App() {
                 <span className="italic font-normal">We've mastered it.</span>
               </h2>
               <p className="text-[#5A5A5A] text-sm sm:text-base leading-relaxed mb-5 sm:mb-6">
-                Saisaryhi was founded on a simple conviction: that extraordinary travel is about intention, not just destination. After a decade crafting journeys for discerning travelers across 180 countries, we've learned that the details no one else bothers with — the route, the car, the table by the window — are precisely what make a trip unforgettable.
+                Sai Sarathi was founded on a simple conviction: that extraordinary travel is about intention, not just destination. After a decade crafting journeys for discerning travelers across 180 countries, we've learned that the details no one else bothers with — the route, the car, the table by the window — are precisely what make a trip unforgettable.
               </p>
               <p className="text-[#5A5A5A] text-sm sm:text-base leading-relaxed mb-8 sm:mb-10">
                 We combine a curated fleet of premium vehicles with hand-picked itineraries, local relationships, and a team of specialists who treat every journey as if it were their own.
@@ -1281,7 +1320,9 @@ export default function App() {
               <div className="rounded-2xl overflow-hidden bg-[#0B1C2C]" style={{ aspectRatio: "4/5" }}>
                 <img
                   src="https://images.unsplash.com/photo-1782113326479-b450da6c86d9?w=900&h=1100&fit=crop&auto=format"
-                  alt="Curved sofa by infinity pool overlooking the sea"
+                  alt="Sai Sarathi Travels - Luxury Travel Experience in Maharashtra"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -1337,7 +1378,9 @@ export default function App() {
                   <div className="flex items-center gap-3 pt-4 sm:pt-5" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
                     <img
                       src={t.img}
-                      alt={t.name}
+                      alt={`${t.name} - Verified Traveler Review`}
+                      loading="lazy"
+                      decoding="async"
                       className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shrink-0"
                       style={{ border: "2px solid rgba(201,162,39,0.45)" }}
                     />
@@ -1378,7 +1421,9 @@ export default function App() {
               <div className="rounded-2xl overflow-hidden bg-[#0B1C2C] flex-1 min-h-48 sm:min-h-64 relative">
                 <img
                   src="/images/Immersive_4K_Documentary__Exploring_the_Divine_Aura_of_Shri_Shirdi_Sai_Baba_Temple___Telugu_.jpeg"
-                  alt="Shirdi Sai Baba"
+                  alt="Shirdi Sai Baba Temple - Sai Sarathi Travels Location"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C]/75 to-transparent" />
@@ -1393,7 +1438,9 @@ export default function App() {
                 {/* Address */}
                 <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E8E3D8]">
                   <p className="text-[#C9A227] text-xs font-medium tracking-widest uppercase mb-2">Address</p>
-                  <p className="text-[#1A1A1A] text-sm leading-relaxed">Near Saibaba Temple,{"\n"}Shirdi, Maharashtra</p>
+                  <address className="not-italic text-[#1A1A1A] text-sm leading-relaxed">
+                    Near Saibaba Temple,{"\n"}Shirdi, Maharashtra
+                  </address>
                 </div>
 
                 {/* Phone */}
@@ -1428,17 +1475,20 @@ export default function App() {
           </div>
         </div>
       </section>
+      </main>
 
       {/* ── FOOTER ── */}
       <footer className="bg-[#0B1C2C] py-8 sm:py-12 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
           <img
             src="/images/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
-            alt="Saisarathi Car Rentals"
+            alt="Sai Sarathi Travels Logo"
+            loading="lazy"
+            decoding="async"
             className="h-8 sm:h-10 w-auto brightness-0 invert"
           />
           <p className="text-white/30 text-xs sm:text-sm text-center">
-            © {new Date().getFullYear()} Saisaryhi. All rights reserved. Travel with intention.
+            © {new Date().getFullYear()} Sai Sarathi. All rights reserved. Travel with intention.
           </p>
           <div className="flex gap-5 sm:gap-6">
             {["Privacy", "Terms", "Cookies"].map((link) => (
