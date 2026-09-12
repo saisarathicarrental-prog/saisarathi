@@ -72,9 +72,14 @@ html {
 }
 .marquee-track {
   animation: marquee 40s linear infinite;
+  /* Prevent iOS Safari from stopping the animation on tap */
+  -webkit-tap-highlight-color: transparent;
 }
-.marquee-track:hover {
-  animation-play-state: paused;
+/* Only pause on hover for pointer (mouse) devices — not touch */
+@media (hover: hover) and (pointer: fine) {
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
 }
 
 /* Grain texture overlay */
@@ -96,9 +101,30 @@ html {
 }
 
 /* Touch targets */
-@media (max-width: 639px) {
-  .touch-target {
-    min-height: 44px;
-    min-width: 44px;
+/* Reviews entrance and hover */
+@keyframes reviewCardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.review-card-animate {
+  animation: reviewCardEntrance 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.review-card-hover {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.review-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -4px rgba(232, 185, 35, 0.18), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+  border-color: rgba(232, 185, 35, 0.5);
 }

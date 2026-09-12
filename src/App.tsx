@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
+import AddReview, { type Testimonial, INITIAL_REVIEWS } from "./AddReview";
 
 const NAV_LINKS = ["Services", "Our Cars", "Packages", "About", "Reviews", "Contact"];
 
@@ -201,64 +202,7 @@ const DESTINATIONS: Destination[] = [
   },
 ];
 
-const TESTIMONIALS = [
-  {
-    name: "Rahul Deshmukh",
-    location: "Pune, Maharashtra",
-    rating: 5,
-    quote: "Saisarathi made our Shirdi pilgrimage completely hassle-free. The car was spotless, the driver was punctual and polite, and the entire trip felt taken care of from start to finish.",
-    img: "https://images.unsplash.com/photo-1618306842557-a2515acf2112?w=200&h=200&fit=crop&auto=format",
-  },
-  {
-    name: "Sneha Kulkarni",
-    location: "Nashik, Maharashtra",
-    rating: 5,
-    quote: "Booked the Trimbakeshwar package and it was beyond expectations. Everything was perfectly timed, the vehicle was comfortable, and the driver knew every route beautifully.",
-    img: "https://images.unsplash.com/photo-1622207691293-5cd80466dab3?w=200&h=200&fit=crop&auto=format",
-  },
-  {
-    name: "Vijay Patil",
-    location: "Aurangabad, Maharashtra",
-    rating: 5,
-    quote: "We hired the Innova for our family trip to Ellora Caves. The experience was outstanding — comfortable ride, knowledgeable driver, and timely service throughout the day.",
-    img: "https://images.unsplash.com/photo-1724225618359-a1d2763326f9?w=200&h=200&fit=crop&auto=format",
-  },
-  {
-    name: "Priya Sharma",
-    location: "Mumbai, Maharashtra",
-    rating: 5,
-    quote: "The airport pickup was exactly on time at an odd hour. Clean car, professional driver, ice-cold water ready. Saisarathi is my go-to for every Mumbai airport transfer now.",
-    img: "https://images.unsplash.com/photo-1552113125-81af17f36b57?w=200&h=200&fit=crop&auto=format",
-  },
-  {
-    name: "Amol Jadhav",
-    location: "Solapur, Maharashtra",
-    rating: 5,
-    quote: "Took the Mahabaleshwar hill station package with my wife. Scenic stops, a well-maintained Ertiga, and a driver who felt like a local guide. Truly memorable trip.",
-    img: "https://images.unsplash.com/photo-1596633816484-10da10b748e4?w=200&h=200&fit=crop&auto=format",
-  },
-  {
-    name: "Deepa Nair",
-    location: "Nagpur, Maharashtra",
-    rating: 5,
-    quote: "Hired Saisarathi for our group pilgrimage to Bhimashankar. The Urbania was spacious and AC worked perfectly throughout. Everyone in our group was extremely satisfied.",
-    img: "https://images.unsplash.com/photo-1536766768598-e09213fdcf22?w=200&h=200&fit=crop&auto=format",
-  },
-  {
-    name: "Sachin Bhosale",
-    location: "Kolhapur, Maharashtra",
-    rating: 5,
-    quote: "Used Saisarathi for a corporate team outing to Lonavala. Everything was arranged professionally — on time, clean vehicles, and zero stress for our entire team of 14 people.",
-    img: "https://images.unsplash.com/photo-1701721865389-9935778b40e3?w=200&h=200&fit=crop&auto=format",
-  },
-  {
-    name: "Anita Joshi",
-    location: "Ahmednagar, Maharashtra",
-    rating: 5,
-    quote: "Our Shirdi darshan trip was beautifully planned by Saisarathi. Comfortable ride, kind driver, and they even helped us with timing our visit to avoid the long queues. Highly recommend!",
-    img: "https://images.unsplash.com/photo-1463335361701-e90f4c5045d0?w=200&h=200&fit=crop&auto=format",
-  },
-];
+const DEFAULT_TESTIMONIALS: Testimonial[] = INITIAL_REVIEWS;
 
 function StarRating({ count }: { count: number }) {
   return (
@@ -944,11 +888,97 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  const [currentPath, setCurrentPath] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.location.pathname;
+    }
+    return "/";
+  });
+
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        // Clear any old sample reviews from previous sessions
+        localStorage.removeItem("saisarathi_testimonials");
+        const saved = localStorage.getItem("saisarathi_customer_reviews");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+        }
+      } catch (err) {
+        console.error("Error reading reviews from localStorage", err);
+      }
+    }
+    return [];
+  });
+
+  const [reviewNotification, setReviewNotification] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onPopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const navigateTo = (path: string) => {
+    if (typeof window !== "undefined") {
+      window.history.pushState({}, "", path);
+      setCurrentPath(path);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleAddReview = (newReview: Testimonial) => {
+    const updatedReviews = [{ ...newReview, isNew: true }, ...testimonials];
+    setTestimonials(updatedReviews);
+    try {
+      localStorage.setItem("saisarathi_customer_reviews", JSON.stringify(updatedReviews));
+    } catch (e) {
+      console.error("Failed to save to localStorage", e);
+    }
+  };
+
+  const isAddReviewPage =
+    currentPath.endsWith("/addreview") ||
+    currentPath.includes("addreview") ||
+    (typeof window !== "undefined" && window.location.hash === "#addreview");
+
+  if (isAddReviewPage) {
+    return (
+      <AddReview
+        reviews={testimonials}
+        onSubmitReview={handleAddReview}
+        onBack={() => navigateTo("/")}
+      />
+    );
+  }
+
+  // Build the marquee list:
+  // - 0 reviews → empty (empty state shown instead)
+  // - 1 review  → show once, no loop animation
+  // - 2+ reviews → duplicate enough times to fill the strip seamlessly
+  const MARQUEE_MIN_CARDS = 6; // minimum cards needed for smooth looping
+  const displayTestimonials = (() => {
+    if (testimonials.length === 0) return [];
+    if (testimonials.length === 1) return testimonials; // single card, no duplication
+    // Build one full set, then duplicate the entire set for the seamless CSS loop trick
+    let set = [...testimonials];
+    while (set.length < MARQUEE_MIN_CARDS) {
+      set = [...set, ...testimonials];
+    }
+    return [...set, ...set]; // doubled for seamless 0% → -50% loop
+  })();
+  const isLoopingMarquee = testimonials.length > 1;
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -1350,49 +1380,82 @@ export default function App() {
         </div>
 
         {/* Marquee — fade edges */}
-        <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 md:w-40 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to right, #0F1419, transparent)" }} />
-          <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 md:w-40 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to left, #0F1419, transparent)" }} />
+        {displayTestimonials.length > 0 ? (
+          <div className="relative">
+            {/* Fade edges only when looping (multiple reviews) */}
+            {isLoopingMarquee && (
+              <>
+                <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 md:w-40 z-10 pointer-events-none"
+                  style={{ background: "linear-gradient(to right, #0F1419, transparent)" }} />
+                <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 md:w-40 z-10 pointer-events-none"
+                  style={{ background: "linear-gradient(to left, #0F1419, transparent)" }} />
+              </>
+            )}
 
-          {/* Track — duplicated for seamless loop */}
-          <div className="overflow-hidden">
-            <div className="marquee-track flex gap-4 sm:gap-5 w-max">
-              {[...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
-                <div
-                  key={i}
-                  className="relative flex-shrink-0 flex flex-col rounded-2xl p-5 sm:p-7"
-                  style={{
-                    width: "min(300px, 80vw)",
-                    backgroundColor: "#1A2332",
-                    border: "1px solid rgba(255,255,255,0.07)",
-                    boxShadow: "0 8px 40px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.04) inset",
-                  }}
-                >
-                  <div className="absolute top-0 left-5 sm:left-7 w-10 h-0.5 rounded-full" style={{ backgroundColor: "#C9A227" }} />
-                  <StarRating count={t.rating} />
-                  <p className="text-xs sm:text-sm leading-relaxed italic flex-1 mb-5 sm:mb-7" style={{ color: "#F5F5F5" }}>
-                    &ldquo;{t.quote}&rdquo;
-                  </p>
-                  <div className="flex items-center gap-3 pt-4 sm:pt-5" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-                    <img
-                      src={t.img}
-                      alt={`${t.name} - Verified Traveler Review`}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shrink-0"
-                      style={{ border: "2px solid rgba(201,162,39,0.45)" }}
-                    />
-                    <div>
-                      <div className="font-medium text-xs sm:text-sm" style={{ color: "#F5F5F5" }}>{t.name}</div>
-                      <div className="text-[11px] sm:text-xs" style={{ color: "#A0AEC0" }}>{t.location}</div>
+            {/* Track — animated only when multiple reviews */}
+            <div className={isLoopingMarquee ? "overflow-hidden" : "flex justify-center px-4"}>
+              <div className={`flex gap-4 sm:gap-5 ${isLoopingMarquee ? "marquee-track w-max" : "flex-wrap justify-center max-w-md"}`}>
+                {displayTestimonials.map((t, i) => (
+                  <div
+                    key={i}
+                    className="relative flex-shrink-0 flex flex-col rounded-2xl p-5 sm:p-7"
+                    style={{
+                      width: "min(300px, 80vw)",
+                      backgroundColor: "#1A2332",
+                      border: "1px solid rgba(255,255,255,0.07)",
+                      boxShadow: "0 8px 40px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.04) inset",
+                    }}
+                  >
+                    <div className="absolute top-0 left-5 sm:left-7 w-10 h-0.5 rounded-full" style={{ backgroundColor: "#C9A227" }} />
+                    <StarRating count={t.rating} />
+                    <p className="text-xs sm:text-sm leading-relaxed italic flex-1 mb-5 sm:mb-7" style={{ color: "#F5F5F5" }}>
+                      &ldquo;{t.quote}&rdquo;
+                    </p>
+                    <div className="flex items-center justify-between gap-3 pt-4 sm:pt-5" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                      <div>
+                        <div className="font-medium text-xs sm:text-sm" style={{ color: "#F5F5F5" }}>{t.name}</div>
+                        <div className="text-[11px] sm:text-xs" style={{ color: "#A0AEC0" }}>{t.location}</div>
+                      </div>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#C9A227] bg-[#C9A227]/10 border border-[#C9A227]/30 px-2.5 py-0.5 rounded-full shrink-0">
+                        <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Verified
+                      </span>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
+        ) : (
+          <div className="text-center py-8 px-4 max-w-md mx-auto">
+            <div className="w-12 h-12 rounded-full bg-[#C9A227]/15 text-[#C9A227] flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </div>
+            <p className="text-base sm:text-lg text-white font-medium mb-1">No reviews yet</p>
+            <p className="text-xs sm:text-sm text-white/60">Be the first to share your journey experience with Sai Sarathi Travels.</p>
+          </div>
+        )}
+
+        {/* Review Section Actions & Add New Review Button */}
+        <div className="mt-12 sm:mt-16 flex flex-col items-center justify-center px-4 relative z-20">
+          <button
+            onClick={() => navigateTo("/addreview")}
+            className="inline-flex items-center gap-3 px-8 py-3.5 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#C9A227] to-[#DDB84A] hover:from-[#DDB84A] hover:to-[#C9A227] text-[#0B1C2C] font-semibold text-sm sm:text-base tracking-wide shadow-xl shadow-[#C9A227]/25 hover:shadow-[#C9A227]/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer group"
+          >
+            <span className="w-6 h-6 rounded-full bg-[#0B1C2C]/15 flex items-center justify-center text-[#0B1C2C] group-hover:rotate-90 transition-transform duration-300">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+            </span>
+            <span>Add New Review</span>
+            <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#C9A227]/30 to-transparent" />
@@ -1514,6 +1577,19 @@ export default function App() {
           <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.306A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.95 7.95 0 01-4.074-1.12l-.292-.174-3.035.795.813-2.965-.19-.305A7.96 7.96 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.582 8-8 8z" />
         </svg>
       </a>
+
+      {/* Toast notification when review is added */}
+      {reviewNotification && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#1A2332] text-white border border-[#C9A227] px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3.5 animate-bounce max-w-sm">
+          <div className="w-7 h-7 rounded-full bg-[#C9A227] text-[#0B1C2C] flex items-center justify-center font-bold text-sm shrink-0">
+            ✓
+          </div>
+          <div>
+            <div className="font-semibold text-sm text-[#C9A227]">Review Published!</div>
+            <div className="text-xs text-white/80 leading-snug">{reviewNotification}</div>
+          </div>
+        </div>
+      )}
 
       {/* ── BOTTOM SHEET ── */}
       <BottomSheet destination={activeDestination} onClose={() => setActiveDestination(null)} />
