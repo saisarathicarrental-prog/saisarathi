@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+@theme inline {
+  --color-navy: #0B1C2C;
+  --color-navy-mid: #1A3A4A;
+  --color-gold: #C9A227;
+  --color-gold-light: #DDB84A;
+  --color-parchment: #F8F6F1;
+  --color-parchment-dark: #F1EDE4;
+  --color-ink: #1A1A1A;
+  --color-ink-muted: #5A5A5A;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #F8F6F1;
+  color: #1A1A1A;
+}
+
+.font-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Scrollbar hiding */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Bottom sheet animation */
+.sheet-enter {
+  transform: translateY(100%);
+}
+.sheet-entered {
+  transform: translateY(0%);
+  transition: transform 0.55s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.sheet-exit {
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Gold shimmer on hover */
+.gold-hover {
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+/* Infinite marquee */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 40s linear infinite;
+  /* Prevent iOS Safari from stopping the animation on tap */
+  -webkit-tap-highlight-color: transparent;
+}
+/* Only pause on hover for pointer (mouse) devices — not touch */
+@media (hover: hover) and (pointer: fine) {
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+}
+
+/* Grain texture overlay */
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Line clamping */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Touch targets */
+/* Reviews entrance and hover */
+@keyframes reviewCardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.review-card-animate {
+  animation: reviewCardEntrance 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.review-card-hover {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.review-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -4px rgba(232, 185, 35, 0.18), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+  border-color: rgba(232, 185, 35, 0.5);
+}

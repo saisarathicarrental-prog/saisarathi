@@ -1,0 +1,1590 @@
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
+import AddReview, { type Testimonial, INITIAL_REVIEWS } from "./AddReview";
+
+const NAV_LINKS = ["Services", "Our Cars", "Packages", "About", "Reviews", "Contact"];
+
+const WHATSAPP_URL = `https://wa.me/919623389211?text=${encodeURIComponent("Hello Sai Sarathi Travels,\n\nI'm interested in your travel packages. Please share the details.")}`;
+
+const getWhatsAppUrl = (message: string) =>
+  `https://wa.me/919623389211?text=${encodeURIComponent(message)}`;
+
+interface Car {
+  id: number;
+  name: string;
+  specs: string;
+  tag: string;
+  img: string;
+  gallery: string[];
+  features: string[];
+  description: string;
+}
+
+const CARS: Car[] = [
+  {
+    id: 1,
+    name: "Toyota Innova",
+    specs: "7-seater · AC · Automatic",
+    tag: "Most Booked",
+    img: "https://images.unsplash.com/photo-1748215210939-ad8b6c8c086d?w=800&h=500&fit=crop&auto=format",
+    gallery: [
+      "https://images.unsplash.com/photo-1748215210939-ad8b6c8c086d?w=1200&h=700&fit=crop&auto=format",
+      "/images/WhatsApp_Image_.jpeg",
+      "https://images.unsplash.com/photo-1581862142388-23e1c52ca091?w=1200&h=700&fit=crop&auto=format",
+      "https://images.unsplash.com/photo-1611073819030-ac7216dd0022?w=1200&h=700&fit=crop&auto=format",
+    ],
+    features: ["7 Seats", "AC", "GPS Navigation", "USB Charging", "Luggage Space", "Driver Available"],
+    description: "The Toyota Innova is our most trusted family and group vehicle — spacious, comfortable, and built for both city commutes and long highway journeys. A favourite for pilgrimages, family trips, and airport transfers.",
+  },
+  {
+    id: 2,
+    name: "Suzuki Baleno",
+    specs: "5-seater · AC · Automatic",
+    tag: "Hatchback",
+    img: "/images/IMG_9426.PNG",
+    gallery: [
+      "/images/IMG_9426.PNG",
+      "/images/IMG_9428.PNG",
+      "https://images.unsplash.com/photo-1564245316659-a21d3a49d0f5?w=1200&h=700&fit=crop&auto=format",
+      "https://images.unsplash.com/photo-1646119197795-c0f7ba0e34c0?w=1200&h=700&fit=crop&auto=format",
+    ],
+    features: ["5 Seats", "AC", "Fuel Efficient", "USB Charging", "Compact", "Easy Parking"],
+    description: "The Suzuki Baleno is our go-to for solo travelers and couples who need a nimble, fuel-efficient car that handles city traffic and winding hill roads with equal ease.",
+  },
+  {
+    id: 3,
+    name: "Maruti Ertiga",
+    specs: "7-seater · AC · Automatic",
+    tag: "Family MPV",
+    img: "/images/image-2.png",
+    gallery: [
+      "/images/image-2.png",
+      "/images/image-3.png",
+      "/images/image-4.png",
+    ],
+    features: ["7 Seats", "AC", "Boot Space", "USB Charging", "Smooth Ride", "Driver Available"],
+    description: "The Maruti Ertiga strikes the perfect balance between space and economy. Ideal for family outings, small group tours, and weekend getaways across Maharashtra.",
+  },
+  {
+    id: 4,
+    name: "Force Urbania",
+    specs: "17-seater · AC · Automatic",
+    tag: "Luxury Van",
+    img: "/images/image-7.png",
+    gallery: [
+      "/images/image-5.png",
+      "/images/image-6.png",
+      "/images/image-7.png",
+      "/images/image-8.png",
+    ],
+    features: ["17 Seats", "Pushback Seats", "AC", "Large Luggage Bay", "USB Charging", "Professional Driver"],
+    description: "The Force Urbania is our premium choice for large groups — corporate outings, pilgrimages, and destination weddings. Pushback luxury seats, powerful AC, and a cavernous luggage bay for long-distance comfort.",
+  },
+  {
+    id: 5,
+    name: "Hyundai i10",
+    specs: "4-seater · AC · Manual",
+    tag: "City Compact",
+    img: "/images/image-10.png",
+    gallery: [
+      "/images/image-9.png",
+      "/images/image-10.png",
+      "/images/image-11.png",
+    ],
+    features: ["4 Seats", "AC", "Fuel Efficient", "Easy Parking", "City Friendly", "USB Charging"],
+    description: "The Hyundai i10 is our most agile city car — perfect for solo travelers and couples navigating busy city streets, temple lanes, and narrow hill roads with ease and comfort.",
+  },
+];
+
+interface SubPackage {
+  title: string;
+  duration: string;
+  price: string;
+  img: string;
+}
+
+interface Destination {
+  id: number;
+  city: string;
+  country: string;
+  tagline: string;
+  img: string;
+  heroImg: string;
+  description: string;
+  subPackages: SubPackage[];
+}
+
+const DESTINATIONS: Destination[] = [
+  {
+    id: 1,
+    city: "Sambhajinagar",
+    country: "Maharashtra · Sightseeing",
+    tagline: "Ancient caves, sacred temples & hilltop shrines",
+    img: "https://images.unsplash.com/photo-1631774933370-d596a344e851?w=700&h=900&fit=crop&auto=format",
+    heroImg: "https://images.unsplash.com/photo-1631774934803-554afa7371c9?w=1600&h=900&fit=crop&auto=format",
+    description:
+      "Sambhajinagar — formerly Aurangabad — sits at the heart of Maharashtra's heritage triangle. Home to the UNESCO-listed Ellora Caves, one of the world's greatest rock-cut monuments, the city blends Maratha history, Mughal grandeur, and living pilgrimage traditions into a single unforgettable circuit.",
+    subPackages: [
+      { title: "Ellora Caves", duration: "Full Day", price: "₹1,200", img: "/images/ellora-caves.jpg" },
+      { title: "Ghrishneshwar Temple", duration: "Half Day", price: "₹800", img: "/images/grishneshwar.jpg" },
+      { title: "Bhadra Maruti", duration: "Half Day", price: "₹600", img: "/images/bhadra-maruti.png" },
+      { title: "Daulatabad Fort", duration: "Half Day", price: "₹900", img: "/images/daulatabad-fort.jpg" },
+      { title: "Bibi Ka Maqbara", duration: "Half Day", price: "₹700", img: "/images/bibi-ka-maqbara.jpg" },
+      { title: "Ajanta Caves", duration: "Full Day", price: "₹1,400", img: "https://images.unsplash.com/photo-1631774933370-d596a344e851?w=600&h=400&fit=crop&auto=format" },
+    ],
+  },
+  {
+    id: 2,
+    city: "Pune",
+    country: "Maharashtra · Sightseeing",
+    tagline: "Spiritual landmarks of the cultural capital",
+    img: "https://images.unsplash.com/photo-1749276551411-18a26e0905a0?w=700&h=900&fit=crop&auto=format",
+    heroImg: "https://images.unsplash.com/photo-1567319210485-63e23072cc30?w=1600&h=900&fit=crop&auto=format",
+    description:
+      "Pune is Maharashtra's cultural and spiritual heartbeat — a city where ancient temples stand beside vibrant cafes and Maratha heritage overlooks modern expressways. Our Pune sightseeing circuit takes you to the most revered and iconic stops the city has to offer.",
+    subPackages: [
+      { title: "Bhimashankar Temple", duration: "Full Day", price: "₹1,400", img: "/images/bhimashankar.png" },
+      { title: "Dagdusheth Ganpati", duration: "Half Day", price: "₹700", img: "/images/dagdusheth-ganpati.jpg" },
+      { title: "Shaniwar Wada", duration: "Half Day", price: "₹800", img: "/images/shaniwar-wada.jpg" },
+      { title: "Lonavala & Khandala", duration: "Full Day", price: "₹1,200", img: "https://images.unsplash.com/photo-1619260584294-8a4e63f5ade5?w=600&h=400&fit=crop&auto=format" },
+    ],
+  },
+  {
+    id: 3,
+    city: "Hill Stations",
+    country: "Maharashtra · Nature Escapes",
+    tagline: "Mist-wrapped valleys and cascading waterfalls",
+    img: "https://images.unsplash.com/photo-1759855021430-d6e2121b6928?w=700&h=900&fit=crop&auto=format",
+    heroImg: "https://images.unsplash.com/photo-1597637245724-beb1e10cb79a?w=1600&h=900&fit=crop&auto=format",
+    description:
+      "Maharashtra's Western Ghats hide four of India's most enchanting hill escapes — Saputara with its forested plateau, Bhandardara with Arthur Lake and Randha Falls, Lonavala & Khandala with their dramatic valleys and tiger's leap viewpoints, and Mahabaleshwar with its sweeping panoramas and strawberry farms. Perfect for a weekend away from the city.",
+    subPackages: [
+      { title: "Saputara", duration: "2 Days", price: "₹2,800", img: "https://images.unsplash.com/photo-1621578847110-61f6cf5a3d9e?w=600&h=400&fit=crop&auto=format" },
+      { title: "Bhandardara", duration: "2 Days", price: "₹2,400", img: "https://images.unsplash.com/photo-1521206644285-8db1549e484f?w=600&h=400&fit=crop&auto=format" },
+      { title: "Lonavala & Khandala", duration: "2 Days", price: "₹2,200", img: "https://images.unsplash.com/photo-1619260584294-8a4e63f5ade5?w=600&h=400&fit=crop&auto=format" },
+      { title: "Mahabaleshwar", duration: "2 Days", price: "₹2,600", img: "https://images.unsplash.com/photo-1616388969587-8196f32388b4?w=600&h=400&fit=crop&auto=format" },
+      { title: "Panchgani", duration: "2 Days", price: "₹2,300", img: "https://images.unsplash.com/photo-1759855021430-d6e2121b6928?w=600&h=400&fit=crop&auto=format" },
+      { title: "Jawhar", duration: "2 Days", price: "₹2,000", img: "https://images.unsplash.com/photo-1597637245724-beb1e10cb79a?w=600&h=400&fit=crop&auto=format" },
+      { title: "Matheran", duration: "2 Days", price: "₹2,100", img: "https://images.unsplash.com/photo-1708547981655-e67e6dada4c3?w=600&h=400&fit=crop&auto=format" },
+    ],
+  },
+  {
+    id: 4,
+    city: "Nashik",
+    country: "Maharashtra · Sightseeing",
+    tagline: "Pilgrimage ghats and sacred riverside temples",
+    img: "https://images.unsplash.com/photo-1694667509674-676629c9d069?w=700&h=900&fit=crop&auto=format",
+    heroImg: "https://images.unsplash.com/photo-1706077009991-ef8e611aff47?w=1600&h=900&fit=crop&auto=format",
+    description:
+      "Nashik is one of India's holiest cities — a place where the sacred Godavari winds through ancient ghats and jyotirlinga temples draw pilgrims from across the subcontinent. The city also sits at the heart of Maharashtra's wine country, making it a rare blend of the divine and the indulgent.",
+    subPackages: [
+      { title: "Trimbakeshwar Temple", duration: "Half Day", price: "₹900", img: "/images/trimbakeshwar.png" },
+      { title: "Panchavati", duration: "Half Day", price: "₹700", img: "/images/panchavati.png" },
+      { title: "Sula Vineyard", duration: "Half Day", price: "₹800", img: "https://images.unsplash.com/photo-1607025187860-4c1c1d9da14f?w=600&h=400&fit=crop&auto=format" },
+      { title: "Pandavleni Caves", duration: "Half Day", price: "₹600", img: "/images/pandavleni.jpg" },
+      { title: "Anjaneri Caves", duration: "Full Day", price: "₹1,000", img: "/images/anjaneri-caves.jpg" },
+      { title: "Ram Kund & Panchavati", duration: "Half Day", price: "₹500", img: "https://images.unsplash.com/photo-1571536802807-30451e3955d8?w=600&h=400&fit=crop&auto=format" },
+      { title: "Kalaram Temple", duration: "Half Day", price: "₹400", img: "/images/kalaram-temple.png" },
+      { title: "Brahmagiri Hills", duration: "Full Day", price: "₹1,100", img: "https://images.unsplash.com/photo-1597637245724-beb1e10cb79a?w=600&h=400&fit=crop&auto=format" },
+      { title: "Saptashrungi Gad", duration: "Full Day", price: "₹1,500", img: "/images/saptashrungi-gad.jpg" },
+      { title: "Harihar Fort", duration: "Full Day", price: "₹1,200", img: "https://images.unsplash.com/photo-1703134942857-ef0b6f009a42?w=600&h=400&fit=crop&auto=format" },
+      { title: "Kalsubai Peak", duration: "Full Day", price: "₹1,300", img: "https://images.unsplash.com/photo-1465919292275-c60ba49da6ae?w=600&h=400&fit=crop&auto=format" },
+    ],
+  },
+];
+
+const DEFAULT_TESTIMONIALS: Testimonial[] = INITIAL_REVIEWS;
+
+function StarRating({ count }: { count: number }) {
+  return (
+    <div className="flex gap-0.5 mb-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <svg key={i} className="w-4 h-4" style={{ fill: "#C9A227" }} viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+function SubPackagesScroller({ packages }: { packages: SubPackage[] }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const targetX = useRef(0);
+  const rafId = useRef(0);
+
+  // Stagger-in animation when mounted
+  useEffect(() => {
+    const cards = trackRef.current?.querySelectorAll(".pkg-card");
+    if (!cards) return;
+    gsap.fromTo(
+      cards,
+      { opacity: 0, y: 36, scale: 0.94 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "power3.out", stagger: 0.1, delay: 0.15 }
+    );
+  }, [packages]);
+
+  // Convert vertical wheel → horizontal scroll with GSAP lerp momentum
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
+
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      // Keep targetX in sync with actual position so boundary checks are accurate
+      targetX.current = el.scrollLeft;
+
+      const atStart = el.scrollLeft <= 1;
+      const atEnd = el.scrollLeft >= maxScroll - 1;
+
+      // At the start scrolling up → let page scroll
+      if (atStart && e.deltaY < 0) {
+        cancelAnimationFrame(rafId.current);
+        return;
+      }
+      // At the end scrolling down → let page scroll
+      if (atEnd && e.deltaY > 0) {
+        cancelAnimationFrame(rafId.current);
+        return;
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+      targetX.current = Math.max(0, Math.min(maxScroll, targetX.current + e.deltaY * 1.2));
+      cancelAnimationFrame(rafId.current);
+      const animate = () => {
+        const diff = targetX.current - el.scrollLeft;
+        if (Math.abs(diff) < 0.5) {
+          el.scrollLeft = targetX.current;
+          return;
+        }
+        el.scrollLeft += diff * 0.12;
+        rafId.current = requestAnimationFrame(animate);
+      };
+      rafId.current = requestAnimationFrame(animate);
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      cancelAnimationFrame(rafId.current);
+    };
+  }, [packages]);
+
+  // Hover lift on cards
+  const onCardEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    gsap.to(e.currentTarget, { y: -6, scale: 1.02, boxShadow: "0 20px 48px rgba(11,28,44,0.18)", duration: 0.3, ease: "power2.out" });
+    gsap.to(e.currentTarget.querySelector(".pkg-img"), { scale: 1.07, duration: 0.5, ease: "power2.out" });
+  };
+  const onCardLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    gsap.to(e.currentTarget, { y: 0, scale: 1, boxShadow: "0 2px 16px rgba(11,28,44,0.08)", duration: 0.35, ease: "power2.inOut" });
+    gsap.to(e.currentTarget.querySelector(".pkg-img"), { scale: 1, duration: 0.4, ease: "power2.inOut" });
+  };
+
+  return (
+    <div className="relative -mx-6 md:-mx-10">
+      {/* Fade edges */}
+      <div className="absolute left-0 top-0 bottom-4 w-10 md:w-16 z-10 pointer-events-none"
+        style={{ background: "linear-gradient(to right, #F8F6F1, transparent)" }} />
+      <div className="absolute right-0 top-0 bottom-4 w-10 md:w-16 z-10 pointer-events-none"
+        style={{ background: "linear-gradient(to left, #F8F6F1, transparent)" }} />
+
+      <div
+        ref={trackRef}
+        className="flex gap-5 overflow-x-auto hide-scrollbar px-6 md:px-10 pb-4"
+        style={{ userSelect: "none", scrollBehavior: "auto" }}
+      >
+        {packages.map((pkg, i) => (
+          <div
+            key={i}
+            className="pkg-card group bg-white rounded-2xl overflow-hidden border border-[#E8E3D8] shrink-0 flex flex-col"
+            style={{ width: 240, opacity: 0, boxShadow: "0 2px 16px rgba(11,28,44,0.08)" }}
+            onMouseEnter={onCardEnter}
+            onMouseLeave={onCardLeave}
+          >
+            <div className="h-44 overflow-hidden bg-[#0B1C2C] shrink-0">
+              <img
+                src={pkg.img}
+                alt={`${pkg.title} Sightseeing Tour from Shirdi - Sai Sarathi Travels`}
+                loading="lazy"
+                decoding="async"
+                className="pkg-img w-full h-full object-cover"
+                draggable={false}
+              />
+            </div>
+            <div className="p-4 flex flex-col flex-1">
+              <div className="w-7 h-0.5 bg-[#C9A227] rounded-full mb-3" />
+              <h4 className="font-serif text-sm font-semibold text-[#1A1A1A] mb-auto leading-snug">{pkg.title}</h4>
+              <div className="mt-4 pt-3 border-t border-[#F1EDE4]">
+                <a
+                  href={getWhatsAppUrl(`Hello Sai Sarathi Travels,\n\nI'm interested in one of your travel ride of ${pkg.title}.`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="block w-full text-center bg-[#C9A227] text-white text-xs font-semibold py-2 rounded-full tracking-wide hover:bg-[#DDB84A] transition-colors"
+                >
+                  Book Ride
+                </a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-center text-[#5A5A5A]/40 text-xs mt-2 tracking-wide select-none">
+        scroll to explore →
+      </p>
+    </div>
+  );
+}
+
+function CarDetailSheet({ car, onClose }: { car: Car | null; onClose: () => void }) {
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [activeImg, setActiveImg] = useState(0);
+  const thumbsRef = useRef<HTMLDivElement>(null);
+
+  const handleClose = () => {
+    setVisible(false);
+    setTimeout(() => { onClose(); }, 520);
+  };
+
+  useEffect(() => {
+    if (car) {
+      setMounted(true);
+      setActiveImg(0);
+      document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+    } else {
+      setVisible(false);
+      const t = setTimeout(() => { setMounted(false); document.body.style.overflow = ""; }, 520);
+      return () => clearTimeout(t);
+    }
+  }, [car]);
+
+  // GSAP stagger thumbnails when sheet opens
+  useEffect(() => {
+    if (!visible || !thumbsRef.current) return;
+    const thumbs = thumbsRef.current.querySelectorAll(".thumb-item");
+    gsap.fromTo(thumbs,
+      { opacity: 0, y: 20, scale: 0.9 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "power3.out", stagger: 0.08, delay: 0.25 }
+    );
+  }, [visible]);
+
+  if (!mounted || !car) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col"
+      style={{ backgroundColor: visible ? "rgba(11,28,44,0.75)" : "rgba(11,28,44,0)", transition: "background-color 0.4s ease" }}
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+    >
+      <div
+        className="absolute bottom-0 left-0 right-0 bg-[#F8F6F1] rounded-t-3xl overflow-hidden flex flex-col"
+        style={{
+          height: "90vh",
+          transform: visible ? "translateY(0)" : "translateY(100%)",
+          transition: "transform 0.55s cubic-bezier(0.32,0.72,0,1)",
+        }}
+      >
+        {/* Drag handle */}
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-[#0B1C2C]/20 z-10" />
+
+        {/* Close */}
+        <button
+          onClick={handleClose}
+          className="absolute top-5 right-5 z-10 w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+          style={{ backgroundColor: "#C9A227", boxShadow: "0 4px 16px rgba(201,162,39,0.5)" }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="white" strokeWidth={2.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="flex-1 overflow-y-auto hide-scrollbar">
+          {/* Main image with slide transition */}
+          <div className="relative bg-[#0B1C2C] overflow-hidden" style={{ height: 300 }}>
+            {car.gallery.map((src, i) => (
+              <img
+                key={i}
+                src={src}
+                alt={`${car.name} Car Rental in Shirdi - View ${i + 1}`}
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{
+                  opacity: i === activeImg ? 1 : 0,
+                  transform: i === activeImg ? "scale(1)" : "scale(1.04)",
+                  transition: "opacity 0.5s ease, transform 0.5s ease",
+                }}
+              />
+            ))}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C]/40 to-transparent" />
+
+            {/* Image counter */}
+            <div className="absolute bottom-4 right-5 bg-[#0B1C2C]/60 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">
+              {activeImg + 1} / {car.gallery.length}
+            </div>
+
+            {/* Arrow buttons */}
+            <button
+              onClick={() => setActiveImg((p) => (p - 1 + car.gallery.length) % car.gallery.length)}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/40 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setActiveImg((p) => (p + 1) % car.gallery.length)}
+              className="absolute right-14 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/40 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Thumbnails */}
+          <div ref={thumbsRef} className="flex gap-3 px-6 pt-5 pb-1 overflow-x-auto hide-scrollbar">
+            {car.gallery.map((src, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveImg(i)}
+                className="thumb-item shrink-0 rounded-xl overflow-hidden bg-[#0B1C2C] opacity-0"
+                style={{
+                  width: 80, height: 56,
+                  outline: i === activeImg ? "2px solid #C9A227" : "2px solid transparent",
+                  outlineOffset: 2,
+                  transition: "outline-color 0.2s ease",
+                }}
+              >
+                <img src={src} alt={`${car.name} photo thumbnail ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+
+          {/* Info */}
+          <div className="px-6 md:px-8 pt-6 pb-10">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div>
+                <span className="inline-block bg-[#C9A227]/15 text-[#C9A227] text-xs font-semibold px-3 py-1 rounded-full mb-2">{car.tag}</span>
+                <h2 className="font-serif text-3xl text-[#0B1C2C] font-semibold">{car.name}</h2>
+                <p className="text-[#5A5A5A] text-sm mt-1">{car.specs}</p>
+              </div>
+            </div>
+
+            <div className="w-10 h-0.5 bg-[#C9A227] rounded-full mb-5" />
+
+            <p className="text-[#5A5A5A] text-base leading-relaxed mb-8">{car.description}</p>
+
+            {/* Features grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
+              {car.features.map((f) => (
+                <div key={f} className="flex items-center gap-2.5 bg-white border border-[#E8E3D8] rounded-xl px-4 py-3">
+                  <svg className="w-4 h-4 text-[#C9A227] shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-[#0B1C2C] text-sm font-medium">{f}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href={getWhatsAppUrl(`Hello Sai Sarathi Travels,\n\nI would like to book a ${car.name} listed on your website.\n\nKindly share the availability and pricing details.`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-center bg-[#C9A227] text-white py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#DDB84A] transition-colors"
+              >
+                Book This Vehicle
+              </a>
+              <a
+                href={getWhatsAppUrl(`Hello Sai Sarathi Travels,\n\nI would like to book a ${car.name} listed on your website.\n\nKindly share the availability and pricing details.`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-center border border-[#0B1C2C] text-[#0B1C2C] py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#0B1C2C] hover:text-white transition-colors"
+              >
+                Contact Us
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const SERVICES = [
+  {
+    id: "airport",
+    label: "Airport Services",
+    tag: "★ Most Popular",
+    highlight: true,
+    img: "https://images.unsplash.com/photo-1504150558240-0b4fd8946624?w=900&h=1100&fit=crop&auto=format",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+      </svg>
+    ),
+    tagline: "Door-to-gate, flawlessly",
+    desc: "On-time airport pickups and drops, flight tracked, luggage handled.",
+    expandedDesc: "Available 24/7 at 60+ international airports. Fixed pricing with no surge charges. Chilled water, Wi-Fi, and child seats on every ride. We wait — no matter how late your flight lands.",
+    features: ["Flight tracking", "Name-board meet & greet", "60+ airports", "Fixed pricing"],
+    cta: "Book a Transfer",
+  },
+  {
+    id: "rental",
+    label: "Car Rental",
+    tag: null,
+    highlight: false,
+    img: "https://images.unsplash.com/photo-1533558701576-23c65e0272fb?w=900&h=1100&fit=crop&auto=format",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 9a2 2 0 10-4 0v5a2 2 0 01-2 2h6m-6-4h4m8 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+    tagline: "Drive on your own terms",
+    desc: "Clean, well-maintained vehicles for every trip — hourly, daily, or outstation.",
+    expandedDesc: "From city runabouts to weekend convertibles and long-range SUVs, our fleet is hand-selected and maintained to showroom standard. Chauffeur delivery included.",
+    features: ["320+ vehicles", "Door delivery", "Fully insured", "No hidden fees"],
+    cta: "Browse Fleet",
+  },
+  {
+    id: "trip",
+    label: "Outstanding Trip",
+    tag: null,
+    highlight: false,
+    img: "https://images.unsplash.com/photo-1637139498630-9a580b24fa75?w=900&h=1100&fit=crop&auto=format",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+      </svg>
+    ),
+    tagline: "Scenic routes, curated moments",
+    desc: "Curated sightseeing trips across Maharashtra, pilgrimage to leisure.",
+    expandedDesc: "We design the route, book the stays, curate the stops, and put you behind the wheel of something extraordinary. Travel the way it was meant to feel.",
+    features: ["Custom itineraries", "Scenic routing", "Hotel selection", "Local expertise"],
+    cta: "Plan My Trip",
+  },
+  {
+    id: "planner",
+    label: "Travel Planner",
+    tag: null,
+    highlight: false,
+    img: "https://images.unsplash.com/photo-1516546453174-5e1098a4b4af?w=900&h=1100&fit=crop&auto=format",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    ),
+    tagline: "Your vision, expertly executed",
+    desc: "We handle the itinerary, bookings, and logistics — you just travel.",
+    expandedDesc: "Think of us as your personal travel director. We handle the complexity; you collect the memories. Available for one-off trips or ongoing annual travel management.",
+    features: ["Dedicated specialist", "Full concierge", "Flights & hotels", "Annual plans"],
+    cta: "Talk to a Planner",
+  },
+];
+
+function ServicesSection() {
+  const [visibleCards, setVisibleCards] = useState<boolean[]>([false, false, false, false]);
+  const sectionRef = useRef<HTMLElement>(null);
+  const observed = useRef(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !observed.current) {
+          observed.current = true;
+          SERVICES.forEach((_, i) => {
+            setTimeout(() => {
+              setVisibleCards((prev) => {
+                const next = [...prev];
+                next[i] = true;
+                return next;
+              });
+            }, i * 120);
+          });
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section id="services" ref={sectionRef} className="py-16 sm:py-24 md:py-32 bg-[#F1EDE4] relative overflow-hidden">
+      <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#C9A227]/6 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-[#0B1C2C]/5 blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-10 md:mb-16">
+          <div>
+            <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-3">What We Offer</p>
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight">
+              Our <span className="italic font-normal">Services</span>
+            </h2>
+          </div>
+          <p className="text-[#5A5A5A] text-sm sm:text-base leading-relaxed max-w-sm">
+            From the runway to the open road — every service crafted to eliminate friction and elevate the journey.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+          {SERVICES.map((svc, i) => {
+            const isVisible = visibleCards[i];
+            return (
+              <div
+                key={svc.id}
+                className="group relative rounded-3xl overflow-hidden flex flex-col"
+                style={{
+                  backgroundColor: "#343a40",
+                  opacity: isVisible ? 1 : 0,
+                  transform: isVisible ? "translateY(0) scale(1)" : "translateY(40px) scale(0.97)",
+                  transition: "opacity 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1)",
+                  transitionDelay: `${i * 80}ms`,
+                  boxShadow: "0 4px 24px rgba(0,0,0,0.1)",
+                }}
+              >
+                {/* Image */}
+                <div className="relative overflow-hidden shrink-0" style={{ height: "200px" }}>
+                  <img
+                    src={svc.img}
+                    alt={`${svc.label} in Shirdi - Sai Sarathi Travels`}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  {svc.highlight && (
+                    <div className="absolute top-4 left-4">
+                      <span className="inline-flex items-center gap-1.5 bg-[#C9A227] text-white text-[10px] font-semibold px-3 py-1 rounded-full tracking-widest uppercase">
+                        {svc.tag}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="p-4 sm:p-6 flex flex-col flex-1">
+                  <div className="w-7 h-0.5 mb-3 sm:mb-5 rounded-full" style={{ backgroundColor: "#C9A227" }} />
+                  <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.75)" }}>
+                      {svc.icon}
+                    </div>
+                    <h3 className="font-serif text-sm sm:text-lg text-white font-semibold leading-snug pt-0.5 sm:pt-1">{svc.label}</h3>
+                  </div>
+                  <p className="text-white/50 text-[10px] sm:text-xs mb-2 sm:mb-3 tracking-wide italic">{svc.tagline}</p>
+                  <p className="text-white/70 text-xs sm:text-sm leading-relaxed">{svc.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BottomSheet({
+  destination,
+  onClose,
+}: {
+  destination: Destination | null;
+  onClose: () => void;
+}) {
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (destination) {
+      setMounted(true);
+      document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setVisible(true));
+      });
+    } else {
+      setVisible(false);
+      const timer = setTimeout(() => {
+        setMounted(false);
+        document.body.style.overflow = "";
+      }, 420);
+      return () => clearTimeout(timer);
+    }
+  }, [destination]);
+
+
+  if (!mounted || !destination) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col"
+      style={{ backgroundColor: visible ? "rgba(11,28,44,0.72)" : "rgba(11,28,44,0)", transition: "background-color 0.4s ease" }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        ref={sheetRef}
+        className="absolute bottom-0 left-0 right-0 bg-[#F8F6F1] rounded-t-3xl overflow-hidden flex flex-col"
+        style={{
+          height: "94vh",
+          transform: visible ? "translateY(0)" : "translateY(100%)",
+          transition: "transform 0.55s cubic-bezier(0.32,0.72,0,1)",
+        }}
+      >
+        {/* Hero image */}
+        <div className="relative h-72 md:h-96 shrink-0 bg-[#0B1C2C] overflow-hidden">
+          <img
+            src={destination.heroImg}
+            alt={`${destination.city} Sightseeing Tour Package - Sai Sarathi Travels`}
+            decoding="async"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C]/80 via-[#0B1C2C]/20 to-transparent" />
+          <button
+            onClick={onClose}
+            className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+            aria-label="Close"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <div className="absolute bottom-6 left-8 right-8">
+            <p className="text-[#C9A227] text-sm font-medium tracking-widest uppercase mb-1">{destination.country}</p>
+            <h2 className="font-serif text-4xl md:text-5xl text-white font-semibold">{destination.city}</h2>
+          </div>
+          {/* drag handle */}
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/40" />
+        </div>
+
+        {/* Scrollable content */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto hide-scrollbar">
+          <div className="max-w-5xl mx-auto px-6 md:px-10 py-10">
+            <p className="text-[#5A5A5A] text-lg leading-relaxed max-w-2xl mb-12">{destination.description}</p>
+
+            <div className="flex items-center gap-3 mb-8">
+              <div className="h-px flex-1 bg-[#C9A227]/30" />
+              <span className="font-serif italic text-[#1A3A4A] text-sm tracking-wide">Curated Experiences</span>
+              <div className="h-px flex-1 bg-[#C9A227]/30" />
+            </div>
+
+            <SubPackagesScroller packages={destination.subPackages} />
+
+            <div className="mt-12 flex flex-col sm:flex-row gap-4 pb-4">
+              <a href={getWhatsAppUrl(`Hello Sai Sarathi Travels,\n\nI'm interested in one of your travel packages of ${destination.city}.`)} target="_blank" rel="noopener noreferrer" className="text-center bg-[#C9A227] text-white px-10 py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#DDB84A] transition-colors">
+                Book This Destination
+              </a>
+              <a href={getWhatsAppUrl(`Hello Sai Sarathi Travels,\n\nI'm interested in one of your travel packages of ${destination.city}.`)} target="_blank" rel="noopener noreferrer" className="text-center border border-[#0B1C2C] text-[#0B1C2C] px-10 py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#0B1C2C] hover:text-white transition-colors">
+                Talk to a Specialist
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ContactForm() {
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [service, setService] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const whatsappMessage = [
+      "Hello Sai Sarathi Travels,",
+      "",
+      `Full Name : ${fullName || "N/A"}`,
+      `Phone : ${phone || "N/A"}`,
+      `Preferred Service : ${service || "N/A"}`,
+      `Message : ${message || "N/A"}`,
+    ].join("\n");
+
+    const url = `https://wa.me/919623389211?text=${encodeURIComponent(whatsappMessage)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  return (
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+      <div>
+        <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Full Name</label>
+        <input
+          type="text"
+          placeholder="Your name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] placeholder-[#5A5A5A]/50 focus:outline-none focus:border-[#C9A227] transition-colors"
+        />
+      </div>
+      <div>
+        <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Phone</label>
+        <input
+          type="tel"
+          placeholder="+91 00000 00000"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] placeholder-[#5A5A5A]/50 focus:outline-none focus:border-[#C9A227] transition-colors"
+        />
+      </div>
+      <div>
+        <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Preferred Service</label>
+        <select
+          value={service}
+          onChange={(e) => setService(e.target.value)}
+          className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#C9A227] transition-colors appearance-none"
+        >
+          <option value="">Select a service…</option>
+          <option>Travel Package</option>
+          <option>Car Rental</option>
+          <option>Combined Trip &amp; Car</option>
+          <option>Corporate Travel</option>
+          <option>Honeymoon Package</option>
+        </select>
+      </div>
+      <div>
+        <label className="text-[#0B1C2C] text-xs font-medium tracking-wide uppercase block mb-2">Message</label>
+        <textarea
+          rows={4}
+          placeholder="Tell us about your dream trip…"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="w-full bg-white border border-[#E8E3D8] rounded-xl px-4 py-3.5 text-sm text-[#1A1A1A] placeholder-[#5A5A5A]/50 focus:outline-none focus:border-[#C9A227] transition-colors resize-none"
+        />
+      </div>
+      <button
+        type="submit"
+        className="bg-[#0B1C2C] text-white px-10 py-4 rounded-full font-medium text-sm tracking-wide hover:bg-[#1A3A4A] transition-colors mt-2 self-start flex items-center gap-2"
+      >
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+          <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.306A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.95 7.95 0 01-4.074-1.12l-.292-.174-3.035.795.813-2.965-.19-.305A7.96 7.96 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.582 8-8 8z" />
+        </svg>
+        Send Message on WhatsApp
+      </button>
+    </form>
+  );
+}
+
+export default function App() {
+  const [activeDestination, setActiveDestination] = useState<Destination | null>(null);
+  const [activeCar, setActiveCar] = useState<Car | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  const [currentPath, setCurrentPath] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.location.pathname;
+    }
+    return "/";
+  });
+
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        // Clear any old sample reviews from previous sessions
+        localStorage.removeItem("saisarathi_testimonials");
+        const saved = localStorage.getItem("saisarathi_customer_reviews");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+        }
+      } catch (err) {
+        console.error("Error reading reviews from localStorage", err);
+      }
+    }
+    return [];
+  });
+
+  const [reviewNotification, setReviewNotification] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onPopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const navigateTo = (path: string) => {
+    if (typeof window !== "undefined") {
+      window.history.pushState({}, "", path);
+      setCurrentPath(path);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleAddReview = (newReview: Testimonial) => {
+    const updatedReviews = [{ ...newReview, isNew: true }, ...testimonials];
+    setTestimonials(updatedReviews);
+    try {
+      localStorage.setItem("saisarathi_customer_reviews", JSON.stringify(updatedReviews));
+    } catch (e) {
+      console.error("Failed to save to localStorage", e);
+    }
+  };
+
+  const isAddReviewPage =
+    currentPath.endsWith("/addreview") ||
+    currentPath.includes("addreview") ||
+    (typeof window !== "undefined" && window.location.hash === "#addreview");
+
+  if (isAddReviewPage) {
+    return (
+      <AddReview
+        reviews={testimonials}
+        onSubmitReview={handleAddReview}
+        onBack={() => navigateTo("/")}
+      />
+    );
+  }
+
+  // Build the marquee list:
+  // - 0 reviews → empty (empty state shown instead)
+  // - 1 review  → show once, no loop animation
+  // - 2+ reviews → duplicate enough times to fill the strip seamlessly
+  const MARQUEE_MIN_CARDS = 6; // minimum cards needed for smooth looping
+  const displayTestimonials = (() => {
+    if (testimonials.length === 0) return [];
+    if (testimonials.length === 1) return testimonials; // single card, no duplication
+    // Build one full set, then duplicate the entire set for the seamless CSS loop trick
+    let set = [...testimonials];
+    while (set.length < MARQUEE_MIN_CARDS) {
+      set = [...set, ...testimonials];
+    }
+    return [...set, ...set]; // doubled for seamless 0% → -50% loop
+  })();
+  const isLoopingMarquee = testimonials.length > 1;
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setMenuOpen(false);
+  };
+
+  return (
+    <div className="min-h-full bg-[#F8F6F1]">
+      {/* ── NAV ── */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+          scrolled ? "bg-[#0B1C2C]/95 backdrop-blur-md shadow-lg" : "bg-transparent"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 h-16 md:h-18 flex items-center justify-between py-3 md:py-4">
+          {/* Logo */}
+          <a
+            href="#"
+            aria-label="Sai Sarathi Travels - Home"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="cursor-pointer block"
+          >
+            <img
+              src="/images/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
+              alt="Sai Sarathi Travels - Car Rental & Tour Service Shirdi Logo"
+              className="h-10 md:h-12 w-auto brightness-0 invert"
+            />
+          </a>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-8" aria-label="Main Navigation">
+            {NAV_LINKS.map((link) => {
+              const sectionId = link.toLowerCase().replace(" ", "-");
+              return (
+                <a
+                  key={link}
+                  href={`#${sectionId}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollTo(sectionId);
+                  }}
+                  className="text-white/80 hover:text-[#C9A227] text-sm font-medium tracking-wide transition-colors"
+                >
+                  {link}
+                </a>
+              );
+            })}
+          </nav>
+
+          {/* CTA */}
+          <div className="flex items-center gap-3">
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:block bg-[#C9A227] text-white text-sm font-medium px-6 py-2.5 rounded-full hover:bg-[#DDB84A] transition-colors tracking-wide"
+            >
+              Book Now
+            </a>
+            {/* Mobile hamburger */}
+            <button
+              className="md:hidden text-white p-1"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                {menuOpen
+                  ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  : <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />}
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        {menuOpen && (
+          <div className="md:hidden bg-[#0B1C2C]/98 backdrop-blur-md border-t border-white/10 px-5 py-5 flex flex-col gap-4">
+            {NAV_LINKS.map((link) => {
+              const sectionId = link.toLowerCase().replace(" ", "-");
+              return (
+                <a
+                  key={link}
+                  href={`#${sectionId}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollTo(sectionId);
+                  }}
+                  className="text-white/80 hover:text-[#C9A227] text-base font-medium text-left transition-colors py-1"
+                >
+                  {link}
+                </a>
+              );
+            })}
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#C9A227] text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-[#DDB84A] transition-colors w-full text-center mt-2"
+            >
+              Book Now
+            </a>
+          </div>
+        )}
+      </header>
+
+      <main>
+      {/* ── HERO ── */}
+      <section className="relative min-h-[100svh] md:h-screen md:min-h-[640px] flex flex-col justify-between md:justify-end bg-[#0B1C2C] overflow-hidden">
+        {/* Desktop Background: Full-bleed immersive */}
+        <div className="hidden md:block absolute inset-0 pointer-events-none">
+          <img
+            src="/images/hero01.png"
+            alt="Sai Sarathi Travels fleet at Shirdi International Airport"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C] via-[#0B1C2C]/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B1C2C]/70 via-[#0B1C2C]/20 to-transparent" />
+        </div>
+
+        {/* Mobile Background: Ambient glow + Top Fleet Showcase */}
+        <div className="md:hidden absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Blurred ambient backdrop to fill vertical height with matching tones */}
+          <img
+            src="/images/hero01.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover object-center blur-2xl opacity-25 scale-110"
+          />
+          <div className="absolute inset-0 bg-[#0B1C2C]/75" />
+
+          {/* Sharp, fully responsive fleet photo at top */}
+          <div className="relative w-full aspect-[16/10] overflow-hidden mt-14 sm:mt-16">
+            <img
+              src="/images/hero01.png"
+              alt="Sai Sarathi Travels fleet at Shirdi International Airport"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              className="w-full h-full object-cover object-center"
+            />
+            {/* Soft vignette top */}
+            <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-[#0B1C2C]/90 to-transparent" />
+            {/* Smooth transition into content below */}
+            <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0B1C2C] via-[#0B1C2C]/80 to-transparent" />
+          </div>
+        </div>
+
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 md:px-10 pt-4 pb-8 sm:pb-14 md:pb-32 w-full mt-auto">
+          <div className="max-w-2xl">
+            <p className="text-[#C9A227] text-[10px] sm:text-xs font-medium tracking-[0.25em] sm:tracking-[0.3em] uppercase mb-2 sm:mb-4">
+              Premium Travel & Car Rental
+            </p>
+            <h1 className="font-serif text-[2.25rem] sm:text-5xl md:text-7xl text-white font-semibold leading-[1.1] mb-3 sm:mb-5">
+              Travel Differently<br />
+              <span className="italic font-normal text-[#C9A227]">with Saisarathi</span>
+            </h1>
+            <p className="text-white/80 text-sm sm:text-base md:text-xl leading-relaxed mb-6 sm:mb-8 max-w-xl">
+              Curated journeys and premium vehicles for discerning travelers who understand that how you get there is as important as where you're going.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <button
+                onClick={() => scrollTo("packages")}
+                className="bg-[#C9A227] text-white w-full sm:w-auto px-8 py-3.5 sm:px-10 sm:py-4 rounded-full font-medium tracking-wide hover:bg-[#DDB84A] transition-colors text-sm shadow-lg shadow-[#C9A227]/20 active:scale-[0.98]"
+              >
+                Explore Packages
+              </button>
+              <button
+                onClick={() => scrollTo("our-cars")}
+                className="border border-white/40 text-white w-full sm:w-auto px-8 py-3.5 sm:px-10 sm:py-4 rounded-full font-medium tracking-wide hover:border-white hover:bg-white/10 transition-colors text-sm backdrop-blur-sm active:scale-[0.98]"
+              >
+                Rent a Car
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 right-10 hidden md:flex flex-col items-center gap-2 text-white/40">
+          <span className="text-xs tracking-widest uppercase" style={{ writingMode: "vertical-rl" }}>Scroll</span>
+          <div className="w-px h-12 bg-white/30 animate-pulse" />
+        </div>
+      </section>
+
+      {/* ── STATS STRIP ── */}
+      <div className="bg-[#0B1C2C] py-6 md:py-8">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          {[
+            { value: "100+", label: "Destinations" },
+            { value: "4K+", label: "Happy Travelers" },
+            { value: "15+", label: "Premium Vehicles" },
+            { value: "9 yrs", label: "Of Excellence" },
+          ].map((stat) => (
+            <div key={stat.label} className="text-center">
+              <div className="font-serif text-2xl sm:text-3xl text-[#C9A227] font-semibold mb-1">{stat.value}</div>
+              <div className="text-white/50 text-xs sm:text-sm tracking-wide">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── SERVICES ── */}
+      <ServicesSection />
+
+      {/* ── OUR CARS ── */}
+      <section id="our-cars" className="py-16 sm:py-24 md:py-32 bg-[#F8F6F1]">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-10 md:mb-14">
+            <div>
+              <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-3">Fleet</p>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight">
+                Our Signature<br />
+                <span className="italic font-normal">Vehicles</span>
+              </h2>
+            </div>
+            <p className="text-[#5A5A5A] text-sm sm:text-base leading-relaxed max-w-sm">
+              Every car in our fleet is hand-selected, meticulously maintained, and delivered to your door.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            {CARS.map((car) => (
+              <div
+                key={car.id}
+                className="group bg-white rounded-2xl overflow-hidden border border-[#E8E3D8] hover:border-[#C9A227]/60 hover:shadow-xl transition-all duration-300 cursor-pointer"
+              >
+                {car.tag && (
+                  <div className="px-4 pt-4">
+                    <span className="inline-block bg-[#C9A227]/10 text-[#C9A227] text-xs font-medium px-3 py-1 rounded-full tracking-wide">
+                      {car.tag}
+                    </span>
+                  </div>
+                )}
+                <div className="h-44 overflow-hidden bg-[#1A3A4A] mx-4 mt-3 rounded-xl">
+                  <img
+                    src={car.img}
+                    alt={`${car.name} - Car Rental in Shirdi`}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-serif text-base font-semibold text-[#0B1C2C] mb-1 leading-snug">{car.name}</h3>
+                  <p className="text-[#5A5A5A] text-xs mb-4">{car.specs}</p>
+                  <div className="flex items-center justify-end">
+                    <button
+                      onClick={() => setActiveCar(car)}
+                      className="text-[#0B1C2C] text-xs font-medium border border-[#0B1C2C] px-3 py-1.5 rounded-full hover:bg-[#0B1C2C] hover:text-white transition-colors"
+                    >
+                      Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 sm:mt-10 text-center">
+            <button className="border border-[#0B1C2C] text-[#0B1C2C] w-full sm:w-auto px-10 py-3.5 rounded-full text-sm font-medium hover:bg-[#0B1C2C] hover:text-white transition-colors tracking-wide">
+              View Full Fleet
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── PACKAGES ── */}
+      <section id="packages" className="py-16 sm:py-24 md:py-32 bg-[#F1EDE4]">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10">
+          <div className="text-center mb-10 md:mb-16">
+            <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-3">Destinations</p>
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold mb-4 sm:mb-5">
+              Curated Travel <span className="italic font-normal">Packages</span>
+            </h2>
+            <p className="text-[#5A5A5A] text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+              Each destination is selected for those who want more than a trip. Click any card to explore curated experiences.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+            {DESTINATIONS.map((dest) => (
+              <div
+                key={dest.id}
+                onClick={() => setActiveDestination(dest)}
+                className="group relative rounded-2xl overflow-hidden cursor-pointer bg-[#0B1C2C]"
+                style={{ aspectRatio: "3/4" }}
+              >
+                <img
+                  src={dest.img}
+                  alt={`${dest.city} Sightseeing Tour Package from Shirdi`}
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C]/90 via-[#0B1C2C]/20 to-transparent" />
+                <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-7">
+                  <p className="text-[#C9A227] text-[10px] sm:text-xs font-medium tracking-widest uppercase mb-1">{dest.country}</p>
+                  <h3 className="font-serif text-xl sm:text-3xl text-white font-semibold mb-1 sm:mb-2">{dest.city}</h3>
+                  <p className="text-white/60 text-xs sm:text-sm mb-3 sm:mb-5 leading-relaxed line-clamp-2">{dest.tagline}</p>
+                  <div className="flex items-center gap-2 text-[#C9A227] group-hover:gap-3 transition-all duration-200">
+                    <span className="text-xs sm:text-sm font-medium tracking-wide">Explore</span>
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── ABOUT ── */}
+      <section id="about" className="py-16 sm:py-24 md:py-32 bg-[#F8F6F1]">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Text */}
+            <div>
+              <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-4 sm:mb-5">Our Story</p>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold leading-tight mb-5 sm:mb-7">
+                Travel is a craft.<br />
+                <span className="italic font-normal">We've mastered it.</span>
+              </h2>
+              <p className="text-[#5A5A5A] text-sm sm:text-base leading-relaxed mb-5 sm:mb-6">
+                Sai Sarathi was founded on a simple conviction: that extraordinary travel is about intention, not just destination. After a decade crafting journeys for discerning travelers across 180 countries, we've learned that the details no one else bothers with — the route, the car, the table by the window — are precisely what make a trip unforgettable.
+              </p>
+              <p className="text-[#5A5A5A] text-sm sm:text-base leading-relaxed mb-8 sm:mb-10">
+                We combine a curated fleet of premium vehicles with hand-picked itineraries, local relationships, and a team of specialists who treat every journey as if it were their own.
+              </p>
+
+              {/* Trust badges */}
+              <div className="grid grid-cols-2 gap-4 sm:gap-6 border-t border-[#E8E3D8] pt-6 sm:pt-8">
+                {/* Fully Insured */}
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#0B1C2C] flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#C9A227]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-[#0B1C2C] text-xs sm:text-sm font-semibold mb-0.5">Fully Insured</div>
+                    <div className="text-[#5A5A5A] text-[11px] sm:text-xs leading-relaxed">All vehicles & trips covered</div>
+                  </div>
+                </div>
+
+                {/* 24/7 Support */}
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#0B1C2C] flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#C9A227]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-[#0B1C2C] text-xs sm:text-sm font-semibold mb-0.5">24/7 Support</div>
+                    <div className="text-[#5A5A5A] text-[11px] sm:text-xs leading-relaxed">Concierge on call, always</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Image */}
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden bg-[#0B1C2C]" style={{ aspectRatio: "4/5" }}>
+                <img
+                  src="https://images.unsplash.com/photo-1782113326479-b450da6c86d9?w=900&h=1100&fit=crop&auto=format"
+                  alt="Sai Sarathi Travels - Luxury Travel Experience in Maharashtra"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              {/* Floating card */}
+              <div className="absolute -bottom-6 -left-6 bg-[#0B1C2C] rounded-2xl p-5 shadow-2xl max-w-52 hidden md:block">
+                <div className="text-[#C9A227] font-serif text-3xl font-semibold">9+</div>
+                <div className="text-white text-sm mt-1 leading-snug">Years crafting exceptional journeys worldwide</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ── */}
+      <section id="reviews" className="py-16 sm:py-24 md:py-32 relative overflow-hidden" style={{ backgroundColor: "#0F1419" }}>
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#C9A227]/30 to-transparent" />
+
+        {/* Header */}
+        <div className="text-center mb-10 md:mb-16 px-5 sm:px-6">
+          <p className="text-xs font-medium tracking-[0.3em] uppercase mb-3" style={{ color: "#C9A227" }}>Reviews</p>
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-semibold" style={{ color: "#F5F5F5" }}>
+            What our travelers{" "}
+            <span className="italic font-normal" style={{ color: "#C9A227" }}>say</span>
+          </h2>
+        </div>
+
+        {/* Marquee — fade edges */}
+        {displayTestimonials.length > 0 ? (
+          <div className="relative">
+            {/* Fade edges only when looping (multiple reviews) */}
+            {isLoopingMarquee && (
+              <>
+                <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 md:w-40 z-10 pointer-events-none"
+                  style={{ background: "linear-gradient(to right, #0F1419, transparent)" }} />
+                <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 md:w-40 z-10 pointer-events-none"
+                  style={{ background: "linear-gradient(to left, #0F1419, transparent)" }} />
+              </>
+            )}
+
+            {/* Track — animated only when multiple reviews */}
+            <div className={isLoopingMarquee ? "overflow-hidden" : "flex justify-center px-4"}>
+              <div className={`flex gap-4 sm:gap-5 ${isLoopingMarquee ? "marquee-track w-max" : "flex-wrap justify-center max-w-md"}`}>
+                {displayTestimonials.map((t, i) => (
+                  <div
+                    key={i}
+                    className="relative flex-shrink-0 flex flex-col rounded-2xl p-5 sm:p-7"
+                    style={{
+                      width: "min(300px, 80vw)",
+                      backgroundColor: "#1A2332",
+                      border: "1px solid rgba(255,255,255,0.07)",
+                      boxShadow: "0 8px 40px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.04) inset",
+                    }}
+                  >
+                    <div className="absolute top-0 left-5 sm:left-7 w-10 h-0.5 rounded-full" style={{ backgroundColor: "#C9A227" }} />
+                    <StarRating count={t.rating} />
+                    <p className="text-xs sm:text-sm leading-relaxed italic flex-1 mb-5 sm:mb-7" style={{ color: "#F5F5F5" }}>
+                      &ldquo;{t.quote}&rdquo;
+                    </p>
+                    <div className="flex items-center justify-between gap-3 pt-4 sm:pt-5" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                      <div>
+                        <div className="font-medium text-xs sm:text-sm" style={{ color: "#F5F5F5" }}>{t.name}</div>
+                        <div className="text-[11px] sm:text-xs" style={{ color: "#A0AEC0" }}>{t.location}</div>
+                      </div>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#C9A227] bg-[#C9A227]/10 border border-[#C9A227]/30 px-2.5 py-0.5 rounded-full shrink-0">
+                        <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Verified
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8 px-4 max-w-md mx-auto">
+            <div className="w-12 h-12 rounded-full bg-[#C9A227]/15 text-[#C9A227] flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </div>
+            <p className="text-base sm:text-lg text-white font-medium mb-1">No reviews yet</p>
+            <p className="text-xs sm:text-sm text-white/60">Be the first to share your journey experience with Sai Sarathi Travels.</p>
+          </div>
+        )}
+
+        {/* Review Section Actions & Add New Review Button */}
+        <div className="mt-12 sm:mt-16 flex flex-col items-center justify-center px-4 relative z-20">
+          <button
+            onClick={() => navigateTo("/addreview")}
+            className="inline-flex items-center gap-3 px-8 py-3.5 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#C9A227] to-[#DDB84A] hover:from-[#DDB84A] hover:to-[#C9A227] text-[#0B1C2C] font-semibold text-sm sm:text-base tracking-wide shadow-xl shadow-[#C9A227]/25 hover:shadow-[#C9A227]/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer group"
+          >
+            <span className="w-6 h-6 rounded-full bg-[#0B1C2C]/15 flex items-center justify-center text-[#0B1C2C] group-hover:rotate-90 transition-transform duration-300">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+            </span>
+            <span>Add New Review</span>
+            <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#C9A227]/30 to-transparent" />
+      </section>
+
+      {/* ── CONTACT ── */}
+      <section id="contact" className="py-16 sm:py-24 md:py-32 bg-[#F1EDE4]">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+            {/* Form */}
+            <div>
+              <p className="text-[#C9A227] text-xs font-medium tracking-[0.3em] uppercase mb-3 sm:mb-4">Get in Touch</p>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0B1C2C] font-semibold mb-3">
+                Plan your <span className="italic font-normal">journey</span>
+              </h2>
+              <p className="text-[#5A5A5A] text-sm sm:text-base mb-8 sm:mb-10 leading-relaxed">
+                Our specialists are ready to craft an itinerary around your vision. No template packages — every trip is designed from scratch.
+              </p>
+
+              <ContactForm />
+            </div>
+
+            {/* Info */}
+            <div className="flex flex-col gap-5 sm:gap-8">
+              {/* Map placeholder */}
+              <div className="rounded-2xl overflow-hidden bg-[#0B1C2C] flex-1 min-h-48 sm:min-h-64 relative">
+                <img
+                  src="/images/Immersive_4K_Documentary__Exploring_the_Divine_Aura_of_Shri_Shirdi_Sai_Baba_Temple___Telugu_.jpeg"
+                  alt="Shirdi Sai Baba Temple - Sai Sarathi Travels Location"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C]/75 to-transparent" />
+                <div className="absolute bottom-5 left-5 sm:bottom-6 sm:left-6">
+                  <p className="text-white font-serif text-base sm:text-lg font-semibold">Shirdi Sai Baba</p>
+                  <p className="text-white/60 text-xs sm:text-sm">Near Saibaba Temple, Shirdi</p>
+                </div>
+              </div>
+
+              {/* Contact details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                {/* Address */}
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E8E3D8]">
+                  <p className="text-[#C9A227] text-xs font-medium tracking-widest uppercase mb-2">Address</p>
+                  <address className="not-italic text-[#1A1A1A] text-sm leading-relaxed">
+                    Near Saibaba Temple,{"\n"}Shirdi, Maharashtra
+                  </address>
+                </div>
+
+                {/* Phone */}
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E8E3D8]">
+                  <p className="text-[#C9A227] text-xs font-medium tracking-widest uppercase mb-2">Contact Us</p>
+                  <div className="flex flex-col gap-1.5">
+                    <div>
+                      <p className="text-[#1A1A1A] text-sm font-medium">Abhi Gosavi</p>
+                      <a href="tel:9623389211" className="text-[#0B1C2C] text-sm hover:text-[#C9A227] transition-colors">9623389211</a>
+                    </div>
+                    <div>
+                      <p className="text-[#1A1A1A] text-sm font-medium">Rajendra Gosavi</p>
+                      <a href="tel:7350145826" className="text-[#0B1C2C] text-sm hover:text-[#C9A227] transition-colors">7350145826</a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E8E3D8] sm:col-span-2">
+                  <p className="text-[#C9A227] text-xs font-medium tracking-widest uppercase mb-2">Email</p>
+                  <a href="mailto:saisarathi@gmail.com" className="text-[#0B1C2C] text-sm hover:text-[#C9A227] transition-colors">saisarathi@gmail.com</a>
+                </div>
+              </div>
+
+              {/* Brand tag */}
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-[#E8E3D8]" />
+                <span className="font-serif text-[#0B1C2C] text-sm font-semibold tracking-widest italic">Saisarathi</span>
+                <div className="h-px flex-1 bg-[#E8E3D8]" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      </main>
+
+      {/* ── FOOTER ── */}
+      <footer className="bg-[#0B1C2C] py-8 sm:py-12 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
+          <img
+            src="/images/Gemini_Generated_Image_76txuq76txuq76tx__1_-removebg-preview.png"
+            alt="Sai Sarathi Travels Logo"
+            loading="lazy"
+            decoding="async"
+            className="h-8 sm:h-10 w-auto brightness-0 invert"
+          />
+          <p className="text-white/30 text-xs sm:text-sm text-center">
+            © {new Date().getFullYear()} Sai Sarathi. All rights reserved. Travel with intention.
+          </p>
+          <div className="flex gap-5 sm:gap-6">
+            {["Privacy", "Terms", "Cookies"].map((link) => (
+              <button key={link} className="text-white/40 text-xs hover:text-white/70 transition-colors">
+                {link}
+              </button>
+            ))}
+          </div>
+        </div>
+      </footer>
+
+      {/* ── WHATSAPP FAB ── */}
+      <a
+        href={WHATSAPP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl transition-transform duration-300 hover:scale-110 active:scale-95"
+        style={{ backgroundColor: "#25D366" }}
+        aria-label="Chat on WhatsApp"
+      >
+        <svg viewBox="0 0 24 24" className="w-6 h-6 sm:w-7 sm:h-7 fill-white">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+          <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.306A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.95 7.95 0 01-4.074-1.12l-.292-.174-3.035.795.813-2.965-.19-.305A7.96 7.96 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.582 8-8 8z" />
+        </svg>
+      </a>
+
+      {/* Toast notification when review is added */}
+      {reviewNotification && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#1A2332] text-white border border-[#C9A227] px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3.5 animate-bounce max-w-sm">
+          <div className="w-7 h-7 rounded-full bg-[#C9A227] text-[#0B1C2C] flex items-center justify-center font-bold text-sm shrink-0">
+            ✓
+          </div>
+          <div>
+            <div className="font-semibold text-sm text-[#C9A227]">Review Published!</div>
+            <div className="text-xs text-white/80 leading-snug">{reviewNotification}</div>
+          </div>
+        </div>
+      )}
+
+      {/* ── BOTTOM SHEET ── */}
+      <BottomSheet destination={activeDestination} onClose={() => setActiveDestination(null)} />
+      <CarDetailSheet car={activeCar} onClose={() => setActiveCar(null)} />
+    </div>
+  );
+}
