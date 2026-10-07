@@ -895,6 +895,8 @@ export default function App() {
     return getStoredReviews();
   });
 
+  const [reviewNotification, setReviewNotification] = useState<string | null>(null);
+
   // Synchronize reviews globally across all devices in real-time
   useEffect(() => {
     const unsubscribe = subscribeToReviews((updatedReviews) => {
@@ -931,6 +933,10 @@ export default function App() {
       savedReview,
       ...prev.filter((r) => r.id !== savedReview.id),
     ]);
+    setReviewNotification(
+      `"${newReview.name}" – Thank you! Your review is now live.`
+    );
+    setTimeout(() => setReviewNotification(null), 5000);
   };
 
   const isAddReviewPage =
