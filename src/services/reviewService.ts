@@ -1,13 +1,13 @@
-import { io, type Socket } from "socket.io-client";
+import { supabase, isSupabaseConfigured } from "../supabase";
 
 export interface Testimonial {
   id: string;
   userId?: string;
-  userName?: string;
+  userName: string;
   name: string;
   location: string;
   rating: number;
-  review?: string;
+  review: string;
   quote: string;
   date?: string;
   createdAt?: string;
@@ -19,35 +19,26 @@ export interface Testimonial {
 
 export const INITIAL_REVIEWS: Testimonial[] = [];
 
-// Base API URL (falls back to relative "/api" proxied by Vite or direct backend)
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (typeof window !== "undefined" && window.location.port === "5000" ? "" : "");
-
-let socketInstance: Socket | null = null;
-
 /**
- * Helper to ensure consistent field names across frontend components
+ * Format raw Supabase database row to consistent Testimonial object
  */
-export function formatReview(data: any): Testimonial {
-  const name = data.userName || data.name || "Anonymous";
-  const quote = data.review || data.quote || "";
-  const location = data.location || "Verified Traveler";
-  const rating = typeof data.rating === "number" ? data.rating : 5;
-  const createdAt = data.createdAt || new Date().toISOString();
+export function mapSupabaseReview(row: any): Testimonial {
+  const name = row.user_name || row.userName || row.name || "Anonymous";
+  const quote = row.review_text || row.review || row.quote || "";
+  const location = row.location || "Verified Traveler";
+  const rating = typeof row.rating === "number" ? row.rating : 5;
+  const createdAt = row.created_at || row.createdAt || new Date().toISOString();
   const dateObj = new Date(createdAt);
-  const date =
-    data.date ||
-    (!isNaN(dateObj.getTime())
-      ? dateObj.toLocaleDateString("en-IN", {
-          month: "short",
-          year: "numeric",
-        })
-      : "");
+  const date = !isNaN(dateObj.getTime())
+    ? dateObj.toLocaleDateString("en-IN", {
+        month: "short",
+        year: "numeric",
+      })
+    : "";
 
   return {
-    id: String(data.id),
-    userId: data.userId || "anonymous_traveler",
+    id: String(row.id),
+    userId: row.user_id || "anonymous_traveler",
     userName: name,
     name,
     location,
@@ -55,155 +46,136 @@ export function formatReview(data: any): Testimonial {
     review: quote,
     quote,
     createdAt,
-    updatedAt: data.updatedAt || createdAt,
+    updatedAt: row.updated_at || row.updatedAt || createdAt,
     date,
-    timestamp: data.timestamp || (!isNaN(dateObj.getTime()) ? dateObj.getTime() : Date.now()),
-    isNew: Boolean(data.isNew),
+    timestamp: !isNaN(dateObj.getTime()) ? dateObj.getTime() : Date.now(),
+    isNew: Boolean(row.isNew),
   };
 }
 
 /**
- * Get or initialize the Socket.IO client instance
- */
-export function getSocket(): Socket | null {
-  if (typeof window === "undefined") return null;
-
-  if (!socketInstance) {
-    const socketTarget =
-      import.meta.env.VITE_SOCKET_URL ||
-      import.meta.env.VITE_API_URL ||
-      (window.location.port === "5000" ? window.location.origin : "");
-
-    socketInstance = io(socketTarget, {
-      transports: ["websocket", "polling"],
-      reconnectionAttempts: 10,
-      reconnectionDelay: 1000,
-      withCredentials: true,
-    });
-
-    socketInstance.on("connect", () => {
-      console.log(`[Socket.IO] Connected to backend real-time server (ID: ${socketInstance?.id})`);
-    });
-
-    socketInstance.on("connect_error", (error) => {
-      console.warn("[Socket.IO] Connection error (will retry automatically):", error.message);
-    });
-
-    socketInstance.on("disconnect", (reason) => {
-      console.log("[Socket.IO] Disconnected from real-time server:", reason);
-    });
-  }
-
-  return socketInstance;
-}
-
-/**
- * Fetch all reviews directly from the backend database API
- */
-export async function fetchReviewsFromDatabase(): Promise<Testimonial[]> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/reviews`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    const json = await response.json();
-    if (json.success && Array.isArray(json.data)) {
-      return json.data.map(formatReview);
-    }
-  } catch (error) {
-    console.error("[reviewService] Error fetching reviews from database API:", error);
-  }
-  return [];
-}
-
-/**
- * Retrieve cached/initial reviews (returns empty array if none)
+ * Retrieve cached/initial reviews (empty array - Supabase is single source of truth)
  */
 export const getStoredReviews = (): Testimonial[] => {
   return [];
 };
 
 /**
- * Submit a review to the backend database API and wait for confirmation.
- * The backend automatically broadcasts the real-time event to all connected users.
+ * Fetch all reviews directly from the Supabase PostgreSQL database
+ */
+export async function fetchReviewsFromSupabase(): Promise<Testimonial[]> {
+  if (!isSupabaseConfigured()) {
+    console.warn(
+      "[Supabase] Credentials not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file."
+    );
+    return [];
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("[Supabase] Error fetching reviews from PostgreSQL:", error);
+      throw error;
+    }
+
+    if (Array.isArray(data)) {
+      return data.map(mapSupabaseReview);
+    }
+  } catch (error) {
+    console.error("[Supabase] Unexpected error querying reviews:", error);
+  }
+
+  return [];
+}
+
+/**
+ * Insert a review into the Supabase PostgreSQL database table `reviews`
  */
 export const saveReviewToCloud = async (
   review: Omit<Testimonial, "id">
 ): Promise<Testimonial> => {
-  const payload = {
-    userName: review.name,
-    name: review.name,
-    location: review.location || "Verified Traveler",
-    rating: review.rating,
-    review: review.quote,
-    quote: review.quote,
-  };
-
-  const response = await fetch(`${API_BASE_URL}/api/reviews`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    let errorDetail = "Failed to save review to the database.";
-    try {
-      const errJson = await response.json();
-      if (errJson?.errors && Array.isArray(errJson.errors)) {
-        errorDetail = errJson.errors.join(" ");
-      } else if (errJson?.error) {
-        errorDetail = errJson.error;
-      }
-    } catch {
-      // ignore
-    }
-    throw new Error(errorDetail);
+  if (!isSupabaseConfigured()) {
+    throw new Error(
+      "Supabase database connection is not configured yet. Please configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file."
+    );
   }
 
-  const json = await response.json();
-  if (!json.success || !json.data) {
-    throw new Error("Invalid response received from backend review server.");
+  // Frontend input validation
+  const trimmedName = review.name?.trim();
+  const trimmedQuote = review.quote?.trim();
+  const rating = Number(review.rating);
+
+  if (!trimmedName || trimmedName.length < 2) {
+    throw new Error("Name is required and must be at least 2 characters.");
   }
 
-  const savedReview = formatReview(json.data);
+  if (!trimmedQuote || trimmedQuote.length < 10) {
+    throw new Error("Review text is required and must be at least 10 characters.");
+  }
+
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    throw new Error("Rating must be an integer between 1 and 5.");
+  }
+
+  // Insert into Supabase table `reviews`
+  const { data, error } = await supabase
+    .from("reviews")
+    .insert([
+      {
+        user_name: trimmedName,
+        location: review.location?.trim() || "Verified Traveler",
+        rating,
+        review_text: trimmedQuote,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) {
+    console.error("[Supabase] Database insert error:", error);
+    throw new Error(
+      error.message || "Failed to insert review into Supabase PostgreSQL database."
+    );
+  }
+
+  if (!data) {
+    throw new Error("No data returned from Supabase database confirmation.");
+  }
+
+  const savedReview = mapSupabaseReview(data);
   savedReview.isNew = true;
   return savedReview;
 };
 
 /**
- * Delete a review from the database (admin / user management)
+ * Delete a review from Supabase (for moderation/admin)
  */
-export const deleteReviewFromDatabase = async (id: string): Promise<boolean> => {
+export const deleteReviewFromSupabase = async (id: string): Promise<boolean> => {
+  if (!isSupabaseConfigured()) return false;
+
   try {
-    const response = await fetch(`${API_BASE_URL}/api/reviews/${encodeURIComponent(id)}`, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-      },
-    });
-    const json = await response.json();
-    return Boolean(json.success);
+    const { error } = await supabase.from("reviews").delete().eq("id", id);
+    if (error) {
+      console.error("[Supabase] Error deleting review:", error);
+      return false;
+    }
+    return true;
   } catch (err) {
-    console.error("[reviewService] Error deleting review:", err);
+    console.error("[Supabase] Unexpected error deleting review:", err);
     return false;
   }
 };
 
 /**
- * Subscribe to reviews:
- * 1. Fetches all existing reviews from the backend database.
- * 2. Listens for real-time WebSocket events from Socket.IO (create, update, delete).
- * 3. Returns an unsubscribe cleanup function.
+ * Subscribe to Supabase database reviews:
+ * 1. Fetches current reviews from Supabase.
+ * 2. Establishes Supabase Realtime channel on table `reviews`.
+ * 3. Handles INSERT, UPDATE, DELETE events without duplicate cards.
+ * 4. Unsubscribes on cleanup.
  */
 export const subscribeToReviews = (
   onUpdate: (reviews: Testimonial[]) => void
@@ -211,56 +183,63 @@ export const subscribeToReviews = (
   let isSubscribed = true;
   let currentReviews: Testimonial[] = [];
 
-  // 1. Initial fetch from database
-  fetchReviewsFromDatabase().then((databaseReviews) => {
+  // 1. Initial query from Supabase
+  fetchReviewsFromSupabase().then((databaseReviews) => {
     if (!isSubscribed) return;
     currentReviews = databaseReviews;
     onUpdate([...currentReviews]);
   });
 
-  // 2. Real-time WebSocket connection
-  const socket = getSocket();
-
-  const handleReviewCreated = (incomingReview: any) => {
-    if (!isSubscribed) return;
-    const formatted = formatReview(incomingReview);
-
-    // Prevent duplicate entries
-    const exists = currentReviews.some((r) => r.id === formatted.id);
-    if (!exists) {
-      currentReviews = [formatted, ...currentReviews];
-      onUpdate([...currentReviews]);
-    }
-  };
-
-  const handleReviewUpdated = (incomingReview: any) => {
-    if (!isSubscribed) return;
-    const formatted = formatReview(incomingReview);
-    currentReviews = currentReviews.map((r) =>
-      r.id === formatted.id ? formatted : r
-    );
-    onUpdate([...currentReviews]);
-  };
-
-  const handleReviewDeleted = (payload: { id: string }) => {
-    if (!isSubscribed || !payload?.id) return;
-    currentReviews = currentReviews.filter((r) => r.id !== String(payload.id));
-    onUpdate([...currentReviews]);
-  };
-
-  if (socket) {
-    socket.on("review:created", handleReviewCreated);
-    socket.on("review:updated", handleReviewUpdated);
-    socket.on("review:deleted", handleReviewDeleted);
+  // If Supabase is not configured, exit early
+  if (!isSupabaseConfigured()) {
+    return () => {
+      isSubscribed = false;
+    };
   }
+
+  // 2. Real-time channel listener
+  const channel = supabase
+    .channel("public:reviews")
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "reviews",
+      },
+      (payload) => {
+        if (!isSubscribed) return;
+
+        if (payload.eventType === "INSERT") {
+          const newReview = mapSupabaseReview(payload.new);
+          // Avoid duplicate cards
+          const exists = currentReviews.some((r) => r.id === newReview.id);
+          if (!exists) {
+            currentReviews = [newReview, ...currentReviews];
+            onUpdate([...currentReviews]);
+          }
+        } else if (payload.eventType === "UPDATE") {
+          const updatedReview = mapSupabaseReview(payload.new);
+          currentReviews = currentReviews.map((r) =>
+            r.id === updatedReview.id ? updatedReview : r
+          );
+          onUpdate([...currentReviews]);
+        } else if (payload.eventType === "DELETE") {
+          const deletedId = String(payload.old?.id);
+          currentReviews = currentReviews.filter((r) => r.id !== deletedId);
+          onUpdate([...currentReviews]);
+        }
+      }
+    )
+    .subscribe((status) => {
+      if (status === "SUBSCRIBED") {
+        console.log("[Supabase Realtime] Active and listening for changes on reviews table.");
+      }
+    });
 
   // 3. Cleanup function
   return () => {
     isSubscribed = false;
-    if (socket) {
-      socket.off("review:created", handleReviewCreated);
-      socket.off("review:updated", handleReviewUpdated);
-      socket.off("review:deleted", handleReviewDeleted);
-    }
+    supabase.removeChannel(channel);
   };
 };

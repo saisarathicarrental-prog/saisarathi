@@ -3,6 +3,7 @@ import {
   type Testimonial,
   INITIAL_REVIEWS,
 } from "./services/reviewService";
+import { isSupabaseConfigured } from "./supabase";
 
 // Re-export for compatibility
 export type { Testimonial };
@@ -73,9 +74,12 @@ export default function AddReview({
     const finalLocation = location.trim() || "Verified Traveler";
 
     const newReview: Testimonial = {
+      id: "",
+      userName: trimmedName,
       name: trimmedName,
       location: finalLocation,
       rating,
+      review: trimmedQuote,
       quote: trimmedQuote,
       isNew: true,
     };
@@ -91,7 +95,7 @@ export default function AddReview({
       setHoveredRating(0);
       setQuote("");
       setSuccessMessage(
-        `Thank you, ${trimmedName}! Your review has been saved permanently to the database and synchronized in real time across all devices.`
+        `Thank you, ${trimmedName}! Your review has been saved to Supabase PostgreSQL and is now live across all devices in real time.`
       );
 
       setTimeout(() => {
@@ -102,7 +106,7 @@ export default function AddReview({
       setError(
         err instanceof Error
           ? err.message
-          : "An unexpected error occurred while saving your review to the database. Please try again."
+          : "An unexpected error occurred while saving your review to Supabase. Please try again."
       );
     } finally {
       setIsSubmitting(false);
@@ -135,12 +139,22 @@ export default function AddReview({
             </span>
           </div>
 
-          {/* Right: Live Database Sync Status Indicator */}
+          {/* Right: Supabase Realtime Status Indicator */}
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="hidden sm:inline">Database &</span> Realtime Active
-            </span>
+            {isSupabaseConfigured() ? (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="hidden sm:inline">Supabase</span> Realtime Active
+              </span>
+            ) : (
+              <span
+                className="inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full"
+                title="Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env to connect your database"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                <span className="hidden sm:inline">Supabase</span> Setup Required
+              </span>
+            )}
           </div>
         </div>
       </header>
@@ -159,6 +173,17 @@ export default function AddReview({
 
         {/* ── Add Review Form ── */}
         <div className="max-w-2xl mx-auto mt-8 bg-white rounded-2xl p-6 sm:p-10 border border-[#EFE9DF] shadow-[0_4px_24px_-4px_rgba(232,185,35,0.08)]">
+          {!isSupabaseConfigured() && (
+            <div className="mb-6 bg-[#FFF9E6] border border-[#F3DE9C] rounded-xl p-4 text-[#7A5E0B] text-xs sm:text-sm leading-relaxed">
+              <div className="font-semibold text-[#8C6D1F] mb-1 flex items-center gap-2">
+                <span>⚙️ Supabase Cloud Database Setup Required</span>
+              </div>
+              <p>
+                Please add your <strong>VITE_SUPABASE_URL</strong> and <strong>VITE_SUPABASE_ANON_KEY</strong> into your <code>.env</code> file. All reviews will be permanently stored and synchronized in real time via Supabase PostgreSQL.
+              </p>
+            </div>
+          )}
+
           {error && (
             <div className="mb-6 bg-[#FCF3F2] border border-[#F5C6CB] rounded-xl p-3.5 text-[#A94442] text-sm flex items-center gap-2.5">
               <svg className="w-4 h-4 shrink-0 text-[#D9534F]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
