@@ -41,4 +41,14 @@ CREATE POLICY "Allow public insert access to reviews"
   );
 
 -- 6. Enable Supabase Realtime broadcast for the `reviews` table
-ALTER PUBLICATION supabase_realtime ADD TABLE public.reviews;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+    AND schemaname = 'public' 
+    AND tablename = 'reviews'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.reviews;
+  END IF;
+END $$;

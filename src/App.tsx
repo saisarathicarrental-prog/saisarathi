@@ -895,8 +895,6 @@ export default function App() {
     return getStoredReviews();
   });
 
-  const [reviewNotification, setReviewNotification] = useState<string | null>(null);
-
   // Synchronize reviews globally across all devices in real-time
   useEffect(() => {
     const unsubscribe = subscribeToReviews((updatedReviews) => {
@@ -928,19 +926,11 @@ export default function App() {
   };
 
   const handleAddReview = async (newReview: Testimonial) => {
-    try {
-      const savedReview = await saveReviewToCloud(newReview);
-      setTestimonials((prev) => [
-        savedReview,
-        ...prev.filter((r) => r.id !== savedReview.id),
-      ]);
-      setReviewNotification(
-        `"${newReview.name}" – Thank you! Your review is saved to the database and live for all travelers.`
-      );
-      setTimeout(() => setReviewNotification(null), 5000);
-    } catch (e) {
-      console.error("Failed to save review:", e);
-    }
+    const savedReview = await saveReviewToCloud(newReview);
+    setTestimonials((prev) => [
+      savedReview,
+      ...prev.filter((r) => r.id !== savedReview.id),
+    ]);
   };
 
   const isAddReviewPage =

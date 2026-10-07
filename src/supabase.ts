@@ -11,9 +11,11 @@ export const isSupabaseConfigured = (): boolean => {
     supabaseUrl &&
     supabaseUrl.trim() !== "" &&
     !supabaseUrl.includes("your-project") &&
+    !supabaseUrl.includes("placeholder-project") &&
     supabaseAnonKey &&
     supabaseAnonKey.trim() !== "" &&
-    !supabaseAnonKey.includes("your-anon-key")
+    !supabaseAnonKey.includes("your-anon-key") &&
+    !supabaseAnonKey.includes("placeholder-anon-key")
   );
 };
 

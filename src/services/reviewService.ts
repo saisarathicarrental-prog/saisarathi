@@ -65,8 +65,8 @@ export const getStoredReviews = (): Testimonial[] => {
  */
 export async function fetchReviewsFromSupabase(): Promise<Testimonial[]> {
   if (!isSupabaseConfigured()) {
-    console.warn(
-      "[Supabase] Credentials not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file."
+    console.error(
+      "[Supabase Developer Configuration Error] Reviews cannot be loaded: VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY are missing in .env."
     );
     return [];
   }
@@ -78,15 +78,15 @@ export async function fetchReviewsFromSupabase(): Promise<Testimonial[]> {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("[Supabase] Error fetching reviews from PostgreSQL:", error);
-      throw error;
+      console.error("[Supabase Database Error] Error fetching reviews from PostgreSQL:", error);
+      return [];
     }
 
     if (Array.isArray(data)) {
       return data.map(mapSupabaseReview);
     }
   } catch (error) {
-    console.error("[Supabase] Unexpected error querying reviews:", error);
+    console.error("[Supabase Database Error] Unexpected error querying reviews:", error);
   }
 
   return [];
@@ -99,8 +99,11 @@ export const saveReviewToCloud = async (
   review: Omit<Testimonial, "id">
 ): Promise<Testimonial> => {
   if (!isSupabaseConfigured()) {
+    console.error(
+      "[Supabase Developer Configuration Error] Review cannot be submitted: VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY are missing in .env."
+    );
     throw new Error(
-      "Supabase database connection is not configured yet. Please configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file."
+      "Unable to submit review right now. Please try again later."
     );
   }
 
@@ -136,14 +139,14 @@ export const saveReviewToCloud = async (
     .single();
 
   if (error) {
-    console.error("[Supabase] Database insert error:", error);
+    console.error("[Supabase Database Error] Insert into reviews table failed:", error);
     throw new Error(
-      error.message || "Failed to insert review into Supabase PostgreSQL database."
+      "Unable to submit review right now. Please try again later."
     );
   }
 
   if (!data) {
-    throw new Error("No data returned from Supabase database confirmation.");
+    throw new Error("Unable to submit review right now. Please try again later.");
   }
 
   const savedReview = mapSupabaseReview(data);
@@ -155,24 +158,29 @@ export const saveReviewToCloud = async (
  * Delete a review from Supabase (for moderation/admin)
  */
 export const deleteReviewFromSupabase = async (id: string): Promise<boolean> => {
-  if (!isSupabaseConfigured()) return false;
+  if (!isSupabaseConfigured()) {
+    console.error(
+      "[Supabase Developer Configuration Error] Cannot delete review: VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY are missing in .env."
+    );
+    return false;
+  }
 
   try {
     const { error } = await supabase.from("reviews").delete().eq("id", id);
     if (error) {
-      console.error("[Supabase] Error deleting review:", error);
+      console.error("[Supabase Database Error] Error deleting review:", error);
       return false;
     }
     return true;
   } catch (err) {
-    console.error("[Supabase] Unexpected error deleting review:", err);
+    console.error("[Supabase Database Error] Unexpected error deleting review:", err);
     return false;
   }
 };
 
 /**
  * Subscribe to Supabase database reviews:
- * 1. Fetches current reviews from Supabase.
+ * 1. Fetches current reviews from Supabase PostgreSQL.
  * 2. Establishes Supabase Realtime channel on table `reviews`.
  * 3. Handles INSERT, UPDATE, DELETE events without duplicate cards.
  * 4. Unsubscribes on cleanup.
@@ -190,8 +198,11 @@ export const subscribeToReviews = (
     onUpdate([...currentReviews]);
   });
 
-  // If Supabase is not configured, exit early
+  // If Supabase is not configured, log developer error and exit early
   if (!isSupabaseConfigured()) {
+    console.error(
+      "[Supabase Developer Configuration Error] Realtime synchronization disabled: VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY are missing in .env."
+    );
     return () => {
       isSubscribed = false;
     };
@@ -231,9 +242,11 @@ export const subscribeToReviews = (
         }
       }
     )
-    .subscribe((status) => {
+    .subscribe((status, err) => {
       if (status === "SUBSCRIBED") {
-        console.log("[Supabase Realtime] Active and listening for changes on reviews table.");
+        console.log("[Supabase Realtime] Connected and listening for changes on reviews table.");
+      } else if (status === "CHANNEL_ERROR") {
+        console.error("[Supabase Realtime] Channel subscription error:", err);
       }
     });
 
