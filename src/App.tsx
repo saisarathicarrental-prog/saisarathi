@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import AddReview, { type Testimonial, INITIAL_REVIEWS } from "./AddReview";
+import {
+  getStoredReviews,
+  subscribeToReviews,
+  saveReviewToCloud,
+} from "./services/reviewService";
+import { isFirebaseConfigured } from "./firebase";
 
 const NAV_LINKS = ["Services", "Our Cars", "Packages", "About", "Reviews", "Contact"];
 
@@ -887,25 +893,18 @@ export default function App() {
   });
 
   const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        // Clear any old sample reviews from previous sessions
-        localStorage.removeItem("saisarathi_testimonials");
-        const saved = localStorage.getItem("saisarathi_customer_reviews");
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) {
-            return parsed;
-          }
-        }
-      } catch (err) {
-        console.error("Error reading reviews from localStorage", err);
-      }
-    }
-    return [];
+    return getStoredReviews();
   });
 
   const [reviewNotification, setReviewNotification] = useState<string | null>(null);
+
+  // Synchronize reviews globally across all devices in real-time
+  useEffect(() => {
+    const unsubscribe = subscribeToReviews((updatedReviews) => {
+      setTestimonials(updatedReviews);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const onPopState = () => {
@@ -929,13 +928,22 @@ export default function App() {
     }
   };
 
-  const handleAddReview = (newReview: Testimonial) => {
-    const updatedReviews = [{ ...newReview, isNew: true }, ...testimonials];
-    setTestimonials(updatedReviews);
+  const handleAddReview = async (newReview: Testimonial) => {
     try {
-      localStorage.setItem("saisarathi_customer_reviews", JSON.stringify(updatedReviews));
+      const savedReview = await saveReviewToCloud(newReview);
+      setTestimonials((prev) => [
+        savedReview,
+        ...prev.filter((r) => r.id !== savedReview.id),
+      ]);
+      const isCloud = isFirebaseConfigured();
+      setReviewNotification(
+        isCloud
+          ? `"${newReview.name}" – Thank you! Your review is now live globally for all travelers.`
+          : `"${newReview.name}" – Review saved on this device.`
+      );
+      setTimeout(() => setReviewNotification(null), 5000);
     } catch (e) {
-      console.error("Failed to save to localStorage", e);
+      console.error("Failed to save review:", e);
     }
   };
 
@@ -1388,7 +1396,7 @@ export default function App() {
               <div className={`flex gap-4 sm:gap-5 ${isLoopingMarquee ? "marquee-track w-max" : "flex-wrap justify-center max-w-md"}`}>
                 {displayTestimonials.map((t, i) => (
                   <div
-                    key={i}
+                    key={t.id ? `${t.id}-${i}` : i}
                     className="relative flex-shrink-0 flex flex-col rounded-2xl p-5 sm:p-7"
                     style={{
                       width: "min(300px, 80vw)",
@@ -1405,7 +1413,10 @@ export default function App() {
                     <div className="flex items-center justify-between gap-3 pt-4 sm:pt-5" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
                       <div>
                         <div className="font-medium text-xs sm:text-sm" style={{ color: "#F5F5F5" }}>{t.name}</div>
-                        <div className="text-[11px] sm:text-xs" style={{ color: "#A0AEC0" }}>{t.location}</div>
+                        <div className="text-[11px] sm:text-xs" style={{ color: "#A0AEC0" }}>
+                          {t.location}
+                          {t.date ? ` · ${t.date}` : ""}
+                        </div>
                       </div>
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#C9A227] bg-[#C9A227]/10 border border-[#C9A227]/30 px-2.5 py-0.5 rounded-full shrink-0">
                         <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">

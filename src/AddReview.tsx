@@ -1,21 +1,19 @@
 import { useState, useRef } from "react";
+import {
+  type Testimonial,
+  INITIAL_REVIEWS,
+} from "./services/reviewService";
+import { isFirebaseConfigured } from "./firebase";
 
-export interface Testimonial {
-  name: string;
-  location: string;
-  rating: number;
-  quote: string;
-  img?: string;
-  isNew?: boolean;
-}
+// Re-export for compatibility
+export type { Testimonial };
+export { INITIAL_REVIEWS };
 
 interface AddReviewProps {
   reviews?: Testimonial[];
-  onSubmitReview?: (review: Testimonial) => void;
+  onSubmitReview?: (review: Testimonial) => void | Promise<void>;
   onBack: () => void;
 }
-
-export const INITIAL_REVIEWS: Testimonial[] = [];
 
 const RATING_LABELS: Record<number, string> = {
   1: "Poor – Needs major improvement",
@@ -44,7 +42,7 @@ export default function AddReview({
 
   const activeStarCount = hoveredRating > 0 ? hoveredRating : rating;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -83,25 +81,31 @@ export default function AddReview({
       isNew: true,
     };
 
-    setTimeout(() => {
+    try {
+      if (onSubmitReview) {
+        await onSubmitReview(newReview);
+      }
+
       setName("");
       setLocation("");
       setRating(5);
       setHoveredRating(0);
       setQuote("");
-      setIsSubmitting(false);
       setSuccessMessage(
-        `Thank you, ${trimmedName}! Your review has been added to our verified traveler stories below and on the website.`
+        isFirebaseConfigured()
+          ? `Thank you, ${trimmedName}! Your review has been saved to the cloud and is now live across all devices on saisarthi.in.`
+          : `Thank you, ${trimmedName}! Your review has been saved. (To sync across all external devices, add your Firebase keys in .env).`
       );
-
-      if (onSubmitReview) {
-        onSubmitReview(newReview);
-      }
 
       setTimeout(() => {
         reviewsSectionRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);
-    }, 350);
+    } catch (err) {
+      console.error("Error submitting review:", err);
+      setError("An unexpected error occurred while saving your review. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -130,9 +134,22 @@ export default function AddReview({
             </span>
           </div>
 
-          {/* Right: VERIFIED CUSTOMER FEEDBACK */}
-          <div className="text-[11px] sm:text-xs font-semibold tracking-[0.2em] text-[#5C5C5C] uppercase hidden sm:block">
-            VERIFIED CUSTOMER FEEDBACK
+          {/* Right: Cloud Sync Status Indicator */}
+          <div className="flex items-center gap-2">
+            {isFirebaseConfigured() ? (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="hidden sm:inline">Cloud</span> Sync Active
+              </span>
+            ) : (
+              <span
+                className="inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full"
+                title="Configure Firebase in .env to sync reviews across all devices globally"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                <span className="hidden sm:inline">Local</span> Ready
+              </span>
+            )}
           </div>
         </div>
       </header>
@@ -325,7 +342,7 @@ export default function AddReview({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {reviews.map((review, idx) => (
                 <div
-                  key={`${review.name}-${idx}`}
+                  key={review.id || `${review.name}-${idx}`}
                   style={{
                     animationDelay: `${Math.min(idx * 60, 600)}ms`,
                   }}
@@ -372,6 +389,7 @@ export default function AddReview({
                       </div>
                       <div className="text-xs text-[#5C5C5C] mt-0.5">
                         {review.location}
+                        {review.date ? ` · ${review.date}` : ""}
                       </div>
                     </div>
                     {review.isNew && (
