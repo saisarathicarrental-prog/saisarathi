@@ -24,16 +24,6 @@ export const INITIAL_REVIEWS: Testimonial[] = [];
 
 const STORAGE_KEY = "saisarathi_customer_reviews";
 
-// Clear all previous sample/stored reviews
-if (typeof window !== "undefined") {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem("saisarathi_testimonials");
-  } catch (e) {
-    // ignore
-  }
-}
-
 /**
  * Retrieve cached reviews from localStorage, falling back to INITIAL_REVIEWS (empty array).
  */
