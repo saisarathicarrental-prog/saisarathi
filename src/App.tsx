@@ -6,7 +6,6 @@ import {
   subscribeToReviews,
   saveReviewToCloud,
 } from "./services/reviewService";
-import { isFirebaseConfigured } from "./firebase";
 
 const NAV_LINKS = ["Services", "Our Cars", "Packages", "About", "Reviews", "Contact"];
 
@@ -935,11 +934,8 @@ export default function App() {
         savedReview,
         ...prev.filter((r) => r.id !== savedReview.id),
       ]);
-      const isCloud = isFirebaseConfigured();
       setReviewNotification(
-        isCloud
-          ? `"${newReview.name}" – Thank you! Your review is now live globally for all travelers.`
-          : `"${newReview.name}" – Review saved on this device.`
+        `"${newReview.name}" – Thank you! Your review is saved to the database and live for all travelers.`
       );
       setTimeout(() => setReviewNotification(null), 5000);
     } catch (e) {

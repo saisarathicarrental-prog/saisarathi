@@ -1,20 +1,17 @@
-import {
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  onSnapshot,
-  serverTimestamp,
-} from "firebase/firestore";
-import { db, isFirebaseConfigured } from "../firebase";
+import { io, type Socket } from "socket.io-client";
 
 export interface Testimonial {
-  id?: string;
+  id: string;
+  userId?: string;
+  userName?: string;
   name: string;
   location: string;
   rating: number;
+  review?: string;
   quote: string;
   date?: string;
+  createdAt?: string;
+  updatedAt?: string;
   timestamp?: number;
   img?: string;
   isNew?: boolean;
@@ -22,197 +19,248 @@ export interface Testimonial {
 
 export const INITIAL_REVIEWS: Testimonial[] = [];
 
-const STORAGE_KEY = "saisarathi_customer_reviews";
+// Base API URL (falls back to relative "/api" proxied by Vite or direct backend)
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== "undefined" && window.location.port === "5000" ? "" : "");
+
+let socketInstance: Socket | null = null;
 
 /**
- * Retrieve cached reviews from localStorage, falling back to INITIAL_REVIEWS (empty array).
+ * Helper to ensure consistent field names across frontend components
+ */
+export function formatReview(data: any): Testimonial {
+  const name = data.userName || data.name || "Anonymous";
+  const quote = data.review || data.quote || "";
+  const location = data.location || "Verified Traveler";
+  const rating = typeof data.rating === "number" ? data.rating : 5;
+  const createdAt = data.createdAt || new Date().toISOString();
+  const dateObj = new Date(createdAt);
+  const date =
+    data.date ||
+    (!isNaN(dateObj.getTime())
+      ? dateObj.toLocaleDateString("en-IN", {
+          month: "short",
+          year: "numeric",
+        })
+      : "");
+
+  return {
+    id: String(data.id),
+    userId: data.userId || "anonymous_traveler",
+    userName: name,
+    name,
+    location,
+    rating,
+    review: quote,
+    quote,
+    createdAt,
+    updatedAt: data.updatedAt || createdAt,
+    date,
+    timestamp: data.timestamp || (!isNaN(dateObj.getTime()) ? dateObj.getTime() : Date.now()),
+    isNew: Boolean(data.isNew),
+  };
+}
+
+/**
+ * Get or initialize the Socket.IO client instance
+ */
+export function getSocket(): Socket | null {
+  if (typeof window === "undefined") return null;
+
+  if (!socketInstance) {
+    const socketTarget =
+      import.meta.env.VITE_SOCKET_URL ||
+      import.meta.env.VITE_API_URL ||
+      (window.location.port === "5000" ? window.location.origin : "");
+
+    socketInstance = io(socketTarget, {
+      transports: ["websocket", "polling"],
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      withCredentials: true,
+    });
+
+    socketInstance.on("connect", () => {
+      console.log(`[Socket.IO] Connected to backend real-time server (ID: ${socketInstance?.id})`);
+    });
+
+    socketInstance.on("connect_error", (error) => {
+      console.warn("[Socket.IO] Connection error (will retry automatically):", error.message);
+    });
+
+    socketInstance.on("disconnect", (reason) => {
+      console.log("[Socket.IO] Disconnected from real-time server:", reason);
+    });
+  }
+
+  return socketInstance;
+}
+
+/**
+ * Fetch all reviews directly from the backend database API
+ */
+export async function fetchReviewsFromDatabase(): Promise<Testimonial[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/reviews`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const json = await response.json();
+    if (json.success && Array.isArray(json.data)) {
+      return json.data.map(formatReview);
+    }
+  } catch (error) {
+    console.error("[reviewService] Error fetching reviews from database API:", error);
+  }
+  return [];
+}
+
+/**
+ * Retrieve cached/initial reviews (returns empty array if none)
  */
 export const getStoredReviews = (): Testimonial[] => {
-  if (typeof window === "undefined") return [];
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // Filter out any legacy mock reviews with init- id
-        const userOnly = parsed.filter(
-          (r) => r && typeof r === "object" && !String(r.id || "").startsWith("init-")
-        );
-        return userOnly;
-      }
-    }
-  } catch (err) {
-    console.error("Error reading reviews from localStorage", err);
-  }
   return [];
 };
 
 /**
- * Clear all stored reviews completely.
- */
-export const clearAllReviews = (): void => {
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem("saisarathi_testimonials");
-    } catch (e) {
-      console.error("Error clearing reviews from localStorage", e);
-    }
-  }
-};
-
-/**
- * Save reviews to localStorage.
- */
-export const setStoredReviews = (reviews: Testimonial[]): void => {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
-  } catch (err) {
-    console.error("Failed to save reviews to localStorage", err);
-  }
-};
-
-/**
- * Submit a review globally to Firebase Firestore and update local cache.
+ * Submit a review to the backend database API and wait for confirmation.
+ * The backend automatically broadcasts the real-time event to all connected users.
  */
 export const saveReviewToCloud = async (
   review: Omit<Testimonial, "id">
 ): Promise<Testimonial> => {
-  const newTimestamp = Date.now();
-  const dateStr = new Date().toLocaleDateString("en-IN", {
-    month: "short",
-    year: "numeric",
-  });
-
-  const baseReview: Testimonial = {
-    ...review,
-    id: `local-${newTimestamp}`,
-    timestamp: newTimestamp,
-    date: dateStr,
-    isNew: true,
+  const payload = {
+    userName: review.name,
+    name: review.name,
+    location: review.location || "Verified Traveler",
+    rating: review.rating,
+    review: review.quote,
+    quote: review.quote,
   };
 
-  // If Firebase is configured and DB instance is active
-  if (db && isFirebaseConfigured()) {
+  const response = await fetch(`${API_BASE_URL}/api/reviews`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    let errorDetail = "Failed to save review to the database.";
     try {
-      const docRef = await addDoc(collection(db, "reviews"), {
-        name: review.name,
-        location: review.location,
-        rating: review.rating,
-        quote: review.quote,
-        timestamp: newTimestamp,
-        createdAt: serverTimestamp(),
-        dateStr: dateStr,
-      });
-
-      const cloudReview: Testimonial = {
-        ...baseReview,
-        id: docRef.id,
-      };
-
-      // Update local storage cache immediately
-      const current = getStoredReviews();
-      const updated = [cloudReview, ...current.filter((r) => r.id !== cloudReview.id)];
-      setStoredReviews(updated);
-
-      return cloudReview;
-    } catch (err) {
-      console.error("Failed to post review to Firebase Firestore:", err);
-      // Fallback to local storage
+      const errJson = await response.json();
+      if (errJson?.errors && Array.isArray(errJson.errors)) {
+        errorDetail = errJson.errors.join(" ");
+      } else if (errJson?.error) {
+        errorDetail = errJson.error;
+      }
+    } catch {
+      // ignore
     }
-  } else {
-    console.info(
-      "Firebase Firestore is not configured yet. Saving review to local device storage. To enable global sync across all devices, configure Firebase in .env"
-    );
+    throw new Error(errorDetail);
   }
 
-  // Fallback: save to local storage
-  const current = getStoredReviews();
-  const updated = [baseReview, ...current];
-  setStoredReviews(updated);
+  const json = await response.json();
+  if (!json.success || !json.data) {
+    throw new Error("Invalid response received from backend review server.");
+  }
 
-  return baseReview;
+  const savedReview = formatReview(json.data);
+  savedReview.isNew = true;
+  return savedReview;
 };
 
 /**
- * Subscribe to reviews in real time.
- * If Firebase is configured, listens for live updates across all devices globally.
- * Returns an unsubscribe cleanup function.
+ * Delete a review from the database (admin / user management)
+ */
+export const deleteReviewFromDatabase = async (id: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/reviews/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+    const json = await response.json();
+    return Boolean(json.success);
+  } catch (err) {
+    console.error("[reviewService] Error deleting review:", err);
+    return false;
+  }
+};
+
+/**
+ * Subscribe to reviews:
+ * 1. Fetches all existing reviews from the backend database.
+ * 2. Listens for real-time WebSocket events from Socket.IO (create, update, delete).
+ * 3. Returns an unsubscribe cleanup function.
  */
 export const subscribeToReviews = (
   onUpdate: (reviews: Testimonial[]) => void
 ): (() => void) => {
-  // First emit whatever we have in local cache immediately (0ms delay)
-  const initialData = getStoredReviews();
-  onUpdate(initialData);
+  let isSubscribed = true;
+  let currentReviews: Testimonial[] = [];
 
-  // If Firebase is configured, listen to Firestore collection
-  if (db && isFirebaseConfigured()) {
-    try {
-      const q = query(collection(db, "reviews"), orderBy("timestamp", "desc"));
-      const unsubscribe = onSnapshot(
-        q,
-        (snapshot) => {
-          const cloudReviews: Testimonial[] = snapshot.docs.map((docSnap) => {
-            const data = docSnap.data();
-            return {
-              id: docSnap.id,
-              name: data.name || "Anonymous",
-              location: data.location || "Verified Traveler",
-              rating: typeof data.rating === "number" ? data.rating : 5,
-              quote: data.quote || "",
-              timestamp: data.timestamp || 0,
-              date:
-                data.dateStr ||
-                (data.timestamp
-                  ? new Date(data.timestamp).toLocaleDateString("en-IN", {
-                      month: "short",
-                      year: "numeric",
-                    })
-                  : undefined),
-            };
-          });
+  // 1. Initial fetch from database
+  fetchReviewsFromDatabase().then((databaseReviews) => {
+    if (!isSubscribed) return;
+    currentReviews = databaseReviews;
+    onUpdate([...currentReviews]);
+  });
 
-          // Merge cloud reviews with initial reviews, avoiding duplicates
-          const cloudIds = new Set(cloudReviews.map((r) => r.id));
-          const filteredInitial = INITIAL_REVIEWS.filter((r) => !cloudIds.has(r.id));
-          const allReviews = [...cloudReviews, ...filteredInitial];
+  // 2. Real-time WebSocket connection
+  const socket = getSocket();
 
-          setStoredReviews(allReviews);
-          onUpdate(allReviews);
-        },
-        (error) => {
-          console.error("Firestore onSnapshot error:", error);
-          // Keep showing cached data
-          onUpdate(getStoredReviews());
-        }
-      );
+  const handleReviewCreated = (incomingReview: any) => {
+    if (!isSubscribed) return;
+    const formatted = formatReview(incomingReview);
 
-      return () => unsubscribe();
-    } catch (err) {
-      console.error("Failed to subscribe to Firestore reviews:", err);
-    }
-  }
-
-  // Cross-tab synchronization listener for browser storage
-  const handleStorageChange = (e: StorageEvent) => {
-    if (e.key === STORAGE_KEY && e.newValue) {
-      try {
-        const parsed = JSON.parse(e.newValue);
-        if (Array.isArray(parsed)) {
-          onUpdate(parsed);
-        }
-      } catch (err) {
-        console.error("Storage parse error:", err);
-      }
+    // Prevent duplicate entries
+    const exists = currentReviews.some((r) => r.id === formatted.id);
+    if (!exists) {
+      currentReviews = [formatted, ...currentReviews];
+      onUpdate([...currentReviews]);
     }
   };
 
-  if (typeof window !== "undefined") {
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+  const handleReviewUpdated = (incomingReview: any) => {
+    if (!isSubscribed) return;
+    const formatted = formatReview(incomingReview);
+    currentReviews = currentReviews.map((r) =>
+      r.id === formatted.id ? formatted : r
+    );
+    onUpdate([...currentReviews]);
+  };
+
+  const handleReviewDeleted = (payload: { id: string }) => {
+    if (!isSubscribed || !payload?.id) return;
+    currentReviews = currentReviews.filter((r) => r.id !== String(payload.id));
+    onUpdate([...currentReviews]);
+  };
+
+  if (socket) {
+    socket.on("review:created", handleReviewCreated);
+    socket.on("review:updated", handleReviewUpdated);
+    socket.on("review:deleted", handleReviewDeleted);
   }
 
-  return () => {};
+  // 3. Cleanup function
+  return () => {
+    isSubscribed = false;
+    if (socket) {
+      socket.off("review:created", handleReviewCreated);
+      socket.off("review:updated", handleReviewUpdated);
+      socket.off("review:deleted", handleReviewDeleted);
+    }
+  };
 };

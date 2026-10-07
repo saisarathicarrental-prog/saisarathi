@@ -3,7 +3,6 @@ import {
   type Testimonial,
   INITIAL_REVIEWS,
 } from "./services/reviewService";
-import { isFirebaseConfigured } from "./firebase";
 
 // Re-export for compatibility
 export type { Testimonial };
@@ -92,9 +91,7 @@ export default function AddReview({
       setHoveredRating(0);
       setQuote("");
       setSuccessMessage(
-        isFirebaseConfigured()
-          ? `Thank you, ${trimmedName}! Your review has been saved to the cloud and is now live across all devices on saisarthi.in.`
-          : `Thank you, ${trimmedName}! Your review has been saved. (To sync across all external devices, add your Firebase keys in .env).`
+        `Thank you, ${trimmedName}! Your review has been saved permanently to the database and synchronized in real time across all devices.`
       );
 
       setTimeout(() => {
@@ -102,7 +99,11 @@ export default function AddReview({
       }, 100);
     } catch (err) {
       console.error("Error submitting review:", err);
-      setError("An unexpected error occurred while saving your review. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An unexpected error occurred while saving your review to the database. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -134,22 +135,12 @@ export default function AddReview({
             </span>
           </div>
 
-          {/* Right: Cloud Sync Status Indicator */}
+          {/* Right: Live Database Sync Status Indicator */}
           <div className="flex items-center gap-2">
-            {isFirebaseConfigured() ? (
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="hidden sm:inline">Cloud</span> Sync Active
-              </span>
-            ) : (
-              <span
-                className="inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full"
-                title="Configure Firebase in .env to sync reviews across all devices globally"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                <span className="hidden sm:inline">Local</span> Ready
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="hidden sm:inline">Database &</span> Realtime Active
+            </span>
           </div>
         </div>
       </header>
