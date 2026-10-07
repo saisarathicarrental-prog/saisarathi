@@ -20,88 +20,55 @@ export interface Testimonial {
   isNew?: boolean;
 }
 
-export const INITIAL_REVIEWS: Testimonial[] = [
-  {
-    id: "init-1",
-    name: "Rajesh Sharma",
-    location: "Mumbai, Maharashtra",
-    rating: 5,
-    quote:
-      "We booked an Innova Crysta for a 3-day family pilgrimage to Shirdi, Shani Shingnapur, and Trimbakeshwar. The driver was extremely polite, punctual, and knew the VIP darshan timings perfectly. Pristine car hygiene!",
-    date: "Sep 2026",
-    timestamp: 1726000000000,
-  },
-  {
-    id: "init-2",
-    name: "Anita Patil",
-    location: "Pune, Maharashtra",
-    rating: 5,
-    quote:
-      "Best car rental service in Shirdi! We booked a sedan for local temple sightseeing and Ellora Caves. Completely transparent billing, no hidden toll hassles, and AC cooling was excellent throughout.",
-    date: "Aug 2026",
-    timestamp: 1724000000000,
-  },
-  {
-    id: "init-3",
-    name: "Venkat Raman",
-    location: "Bengaluru, Karnataka",
-    rating: 5,
-    quote:
-      "Traveling with elderly parents can be stressful, but Sai Sarathi Travels made our Shirdi & Panchavati darshan effortless. The driver assisted my parents with luggage and stopped at clean family restaurants.",
-    date: "Aug 2026",
-    timestamp: 1723500000000,
-  },
-  {
-    id: "init-4",
-    name: "Dr. Sunil Deshmukh",
-    location: "Hyderabad, Telangana",
-    rating: 5,
-    quote:
-      "Prompt pickup from Pune Airport straight to Shirdi temple. Smooth highway driving, very safe and courteous chauffeur. Highly recommended for spiritual tours in Maharashtra!",
-    date: "Jul 2026",
-    timestamp: 1722000000000,
-  },
-  {
-    id: "init-5",
-    name: "Priya Kulkarni",
-    location: "Nashik, Maharashtra",
-    rating: 5,
-    quote:
-      "Booked a Tempo Traveller for our group tour to Bhimashankar and Grishneshwar Jyotirlinga. Comfortable pushback seats, smooth journey, and reasonable rates. Will definitely book again!",
-    date: "Jun 2026",
-    timestamp: 1719000000000,
-  },
-  {
-    id: "init-6",
-    name: "Amit Joshi",
-    location: "Thane, Maharashtra",
-    rating: 5,
-    quote:
-      "Sai Sarathi Travels made our Shirdi trip memorable. Punctual, courteous driver and fair pricing. The car was spotless and well-maintained.",
-    date: "Jun 2026",
-    timestamp: 1718000000000,
-  },
-];
+export const INITIAL_REVIEWS: Testimonial[] = [];
 
 const STORAGE_KEY = "saisarathi_customer_reviews";
 
+// Clear all previous sample/stored reviews
+if (typeof window !== "undefined") {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem("saisarathi_testimonials");
+  } catch (e) {
+    // ignore
+  }
+}
+
 /**
- * Retrieve cached reviews from localStorage, falling back to INITIAL_REVIEWS.
+ * Retrieve cached reviews from localStorage, falling back to INITIAL_REVIEWS (empty array).
  */
 export const getStoredReviews = (): Testimonial[] => {
-  if (typeof window === "undefined") return INITIAL_REVIEWS;
+  if (typeof window === "undefined") return [];
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        // Filter out any legacy mock reviews with init- id
+        const userOnly = parsed.filter(
+          (r) => r && typeof r === "object" && !String(r.id || "").startsWith("init-")
+        );
+        return userOnly;
       }
     }
   } catch (err) {
     console.error("Error reading reviews from localStorage", err);
   }
-  return INITIAL_REVIEWS;
+  return [];
+};
+
+/**
+ * Clear all stored reviews completely.
+ */
+export const clearAllReviews = (): void => {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem("saisarathi_testimonials");
+    } catch (e) {
+      console.error("Error clearing reviews from localStorage", e);
+    }
+  }
 };
 
 /**
