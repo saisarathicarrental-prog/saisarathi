@@ -20,12 +20,14 @@ export interface Testimonial {
 export const INITIAL_REVIEWS: Testimonial[] = [];
 
 /**
- * Format raw Supabase database row to consistent Testimonial object
+ * Format raw Supabase database row to consistent Testimonial object.
+ * Seamlessly supports both canonical columns (name, city, review)
+ * and backward-compatible aliases (location, comment, user_name, review_text).
  */
 export function mapSupabaseReview(row: any): Testimonial {
   const name = (row.name || row.user_name || row.userName || "Anonymous").trim();
-  const quote = (row.comment || row.review_text || row.review || row.quote || "").trim();
-  const location = (row.location || "Verified Traveler").trim();
+  const quote = (row.review || row.comment || row.review_text || row.quote || "").trim();
+  const location = (row.city || row.location || "Verified Traveler").trim();
   const rating = typeof row.rating === "number" ? Math.max(1, Math.min(5, row.rating)) : 5;
   const createdAt = row.created_at || row.createdAt || new Date().toISOString();
   const dateObj = new Date(createdAt);
@@ -37,7 +39,7 @@ export function mapSupabaseReview(row: any): Testimonial {
     : "";
 
   return {
-    id: String(row.id || `rev_${Date.now()}`),
+    id: String(row.id ?? `rev_${Date.now()}`),
     userId: row.user_id || "anonymous_traveler",
     userName: name,
     name,
@@ -54,7 +56,7 @@ export function mapSupabaseReview(row: any): Testimonial {
 }
 
 /**
- * Retrieve cached/initial reviews (Supabase is the permanent source of truth)
+ * Retrieve cached/initial reviews (empty array - Supabase is single source of truth)
  */
 export const getStoredReviews = (): Testimonial[] => {
   return [];
@@ -107,16 +109,14 @@ export async function fetchReviewsFromSupabase(): Promise<Testimonial[]> {
       .limit(50);
 
     if (error) {
-      if (
-        error.message?.includes("relation") ||
-        error.message?.includes("schema cache") ||
-        error.code === "PGRST205"
-      ) {
+      if (error.code === "PGRST205") {
         console.warn(
           "[Supabase Database Notice] Table 'public.reviews' not found. Please execute 'supabase/setup_reviews.sql' in your Supabase SQL Editor."
         );
       } else {
-        console.error("[Supabase Database Error] Error fetching reviews from PostgreSQL:", error);
+        console.error(
+          `[Supabase Database Error] Code: ${error.code} | Message: ${error.message}`
+        );
       }
       return [];
     }
@@ -167,15 +167,16 @@ export const saveReviewToCloud = async (
     throw new Error("Rating must be an integer between 1 and 5.");
   }
 
-  // Insert into Supabase PostgreSQL table `reviews`
-  // We send both standard columns (`name`, `comment`) and aliases (`user_name`, `review_text`)
+  // Canonical payload matching the live Supabase PostgreSQL schema:
+  // - name: TEXT
+  // - city: TEXT
+  // - rating: INTEGER
+  // - review: TEXT
   const insertPayload = {
     name: trimmedName,
-    user_name: trimmedName,
-    location: trimmedLocation,
+    city: trimmedLocation,
     rating,
-    comment: trimmedQuote,
-    review_text: trimmedQuote,
+    review: trimmedQuote,
   };
 
   const { data, error } = await supabase
@@ -185,22 +186,39 @@ export const saveReviewToCloud = async (
     .single();
 
   if (error) {
-    console.error("[Supabase Database Error] Insert into reviews table failed:", error);
-    if (
-      error.message?.includes("relation") ||
-      error.message?.includes("schema cache") ||
-      error.code === "PGRST205"
-    ) {
+    console.error(
+      `[Supabase Database Error] Insert failed | Code: ${error.code} | Message: ${error.message} | Details: ${error.details || "none"}`
+    );
+
+    // Exact distinction between error types:
+    if (error.code === "PGRST205") {
       throw new Error(
         "Database table 'reviews' does not exist yet. Please run the SQL script in 'supabase/setup_reviews.sql' inside your Supabase SQL Editor."
       );
     }
-    if (error.code === "42501" || error.message?.includes("policy")) {
+    if (error.code === "PGRST204" || error.code === "42703") {
       throw new Error(
-        "Permission denied by Row Level Security policy. Please verify the insert policy in 'supabase/setup_reviews.sql'."
+        `Database schema mismatch: ${error.message || "Column not found"}.`
       );
     }
-    throw new Error(error.message || "Failed to submit review to database. Please try again.");
+    if (
+      error.code === "42501" ||
+      error.message?.toLowerCase().includes("row-level security") ||
+      error.message?.toLowerCase().includes("permission denied")
+    ) {
+      throw new Error(
+        "Permission denied by Row Level Security policy. Please verify public insert permissions in Supabase."
+      );
+    }
+    if (error.code === "23514") {
+      throw new Error(
+        "Invalid review data: Rating must be 1-5, and name and review text must meet required length."
+      );
+    }
+
+    throw new Error(
+      error.message || "Failed to submit review to database. Please try again."
+    );
   }
 
   if (!data) {
@@ -217,9 +235,7 @@ export const saveReviewToCloud = async (
  */
 export const deleteReviewFromSupabase = async (id: string): Promise<boolean> => {
   if (!isSupabaseConfigured()) {
-    console.error(
-      "[Supabase Developer Configuration Error] Cannot delete review: Missing configuration."
-    );
+    console.error("[Supabase Error] Cannot delete review: Missing configuration.");
     return false;
   }
 
