@@ -1,10 +1,17 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+// Load from Vite environment variables with production-ready public fallback
+const supabaseUrl =
+  (import.meta.env.VITE_SUPABASE_URL as string)?.trim() ||
+  "https://nibtsbtxrraitealuarm.supabase.co";
+
+const supabaseAnonKey =
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string)?.trim() ||
+  (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string)?.trim() ||
+  "sb_publishable_GKc7IyjmJtKMrB8LCUfLCA_Myd7RzpZ";
 
 /**
- * Checks whether valid Supabase credentials have been configured in .env
+ * Checks whether valid Supabase credentials have been configured
  */
 export const isSupabaseConfigured = (): boolean => {
   return Boolean(
@@ -23,8 +30,8 @@ export const isSupabaseConfigured = (): boolean => {
  * Supabase client instance with Realtime enabled
  */
 export const supabase: SupabaseClient = createClient(
-  supabaseUrl || "https://placeholder-project.supabase.co",
-  supabaseAnonKey || "placeholder-anon-key",
+  supabaseUrl,
+  supabaseAnonKey,
   {
     auth: {
       persistSession: true,

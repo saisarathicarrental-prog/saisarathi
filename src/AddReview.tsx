@@ -103,17 +103,8 @@ export default function AddReview({
     } catch (err) {
       console.error("[Review Submission Error]:", err);
       const message = err instanceof Error ? err.message : "";
-      const isValidationErr =
-        message.includes("name") ||
-        message.includes("Name") ||
-        message.includes("characters") ||
-        message.includes("rating") ||
-        message.includes("Review text");
-
       setError(
-        isValidationErr
-          ? message
-          : "Unable to submit your review at this time. Please try again later."
+        message || "Unable to submit your review at this time. Please try again later."
       );
     } finally {
       setIsSubmitting(false);
